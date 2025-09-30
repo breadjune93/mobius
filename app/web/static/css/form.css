@@ -1,0 +1,380 @@
+@import "root.css";
+
+.form-container {
+    min-width: 375px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--dark-600);
+    padding: 2rem;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+.form-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 3rem;
+    background-color: var(--dark-500);
+    border: 1px solid var(--dark-300);
+    box-shadow: 0 10px 25px var(--shadow);
+    border-radius: 1rem;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.form-logo {
+    width: 160px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.form-logo img {
+    height: 120px;
+    object-fit: contain;
+}
+
+.form-title {
+    font-size: 1rem;
+    color: #a8aaae;
+}
+
+.form-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--light-300);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--dark-600);
+    border: 1px solid var(--dark-400);
+    color: var(--light-300);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+    border-color: var(--brand-base);
+    box-shadow: 0 0 0 3px rgba(91, 77, 214, 0.15);
+}
+
+.form-input::placeholder {
+    color: var(--light-700);
+}
+
+.form-help {
+    color: var(--dark-100);
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background-color: var(--brand-base);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.submit-button:hover {
+    background-color: var(--brand-deep);
+}
+
+.submit-button:disabled {
+    background-color: var(--dark-300);
+    cursor: not-allowed;
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #3a3b3f;
+}
+
+.form-footer p {
+    font-size: 0.875rem;
+    color: var(--light-500);
+}
+
+.forgot-password {
+    color: var(--brand-base);
+    text-decoration: none;
+    font-weight: 300;
+}
+
+.forgot-password:hover {
+    color: var(--brand-light);
+    text-decoration: underline;
+}
+
+.error-message {
+    background-color: var(--danger-dark);
+    border: 1px solid var(--danger-deep);
+    color: var(--light-500);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    display: none;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--dark-200);
+    border-radius: 50%;
+    border-top-color: var(--light-300);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* White Theme Styles */
+body.white-theme {
+    background-color: #f8f9fa;
+}
+
+body.white-theme .from-container {
+    background-color: #f8f9fa;
+}
+
+body.white-theme .form-card {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+body.white-theme .form-logo img {
+    content: url('../image/mobius-rumos.gif');
+}
+
+body.white-theme .form-title {
+    color: #6c757d;
+}
+
+body.white-theme .form-label {
+    color: #212529;
+}
+
+body.white-theme .form-input {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    color: #212529;
+}
+
+body.white-theme .form-input:focus {
+    border-color: #5b4dd6;
+    box-shadow: 0 0 0 3px rgba(91, 77, 214, 0.15);
+}
+
+body.white-theme .form-input::placeholder {
+    color: #6c757d;
+}
+
+body.white-theme .submit-button {
+    background-color: #5b4dd6;
+}
+
+body.white-theme .submit-button:hover {
+    background-color: #4c3fbb;
+}
+
+body.white-theme .submit-button:disabled {
+    background-color: #adb5bd;
+}
+
+body.white-theme .form-footer {
+    border-top: 1px solid #e9ecef;
+}
+
+body.white-theme .form-footer p {
+    color: #6c757d;
+}
+
+body.white-theme .forgot-password {
+    color: #5b4dd6;
+}
+
+body.white-theme .forgot-password:hover {
+    color: #6d5de8;
+}
+
+body.white-theme .error-message {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+}
+
+/* Theme Toggle - White Theme */
+body.white-theme .theme-toggle {
+    background-color: #e9ecef;
+}
+
+body.white-theme .theme-toggle:hover {
+    background-color: #dee2e6;
+}
+
+body.white-theme .theme-toggle-slider {
+    transform: translateX(30px);
+    background-color: #5b4dd6;
+}
+
+body.white-theme .theme-icon-dark {
+    opacity: 0;
+}
+
+body.white-theme .theme-icon-light {
+    opacity: 1;
+    color: #ffffff;
+}
+
+/* Radio Group Styles */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #a8aaae;
+    padding: 8px 0;
+}
+
+.radio-custom {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #5b5d62;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.radio-label input[type="radio"] {
+    display: none;
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom {
+    border-color: #5b4dd6;
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #5b4dd6;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.radio-text {
+    color: #d1d5db;
+}
+
+.radio-label:hover .radio-custom {
+    border-color: #5b4dd6;
+}
+
+.radio-label:hover .radio-text {
+    color: #ffffff;
+}
+
+/* White Theme Radio Styles */
+body.white-theme .radio-label {
+    color: #6c757d;
+}
+
+body.white-theme .radio-custom {
+    border-color: #ced4da;
+}
+
+body.white-theme .radio-label input[type="radio"]:checked + .radio-custom {
+    border-color: #5b4dd6;
+}
+
+body.white-theme .radio-text {
+    color: #495057;
+}
+
+body.white-theme .radio-label:hover .radio-text {
+    color: #212529;
+}
+
+/* Form help text */
+.form-help {
+    color: #a8aaae;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+body.white-theme .form-help {
+    color: #6c757d;
+}
+
+/* Success message */
+.success-message {
+    background-color: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: #86efac;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    display: none;
+}
+
+body.white-theme .success-message {
+    background-color: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+}
+
+/* Smooth transitions for theme switching */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

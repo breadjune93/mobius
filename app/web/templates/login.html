@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에이전트 Alpha - 로그인</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/chat.css">
+    <link rel="stylesheet" href="/css/form.css">
+</head>
+<body>
+    <div class="form-container">
+        <!-- Theme Toggle Button -->
+        <div class="theme-toggle-container">
+            <button class="theme-toggle" id="themeToggle">
+                <div class="theme-toggle-slider">
+                    <span class="theme-icon theme-icon-dark">🌙</span>
+                    <span class="theme-icon theme-icon-light">☀️</span>
+                </div>
+            </button>
+        </div>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="form-logo">
+                    <img src="/image/mobius-nox.gif" alt="Mobius" class="login-gif-icon" />
+                </h1>
+
+                <p class="form-title">계정에 로그인하여 AI 어시스턴트와 대화하세요</p>
+            </div>
+
+            <form name="form-login" class="form-area">
+                <div class="error-message" id="errorMessage"></div>
+                
+                <div class="form-group">
+                    <label for="user_id" class="form-label">아이디</label>
+                    <input 
+                        type="text" 
+                        id="user_id"
+                        name="user_id"
+                        class="form-input" 
+                        placeholder="아이디를 입력하세요"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">비밀번호</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="비밀번호를 입력하세요"
+                        required
+                    />
+                </div>
+
+                <button type="submit" class="submit-button" id="loginButton">
+                    <span id="loginButtonText">로그인</span>
+                    <div class="loading-spinner" id="loginSpinner" style="display: none;"></div>
+                </button>
+            </form>
+
+            <div class="form-footer">
+                <p>
+                    계정이 없으신가요?
+                    <a href="/signup" class="signup-link">회원가입</a>
+                </p>
+                <p>
+                    <a href="/forgot-password" class="forgot-password">아이디/비밀번호 찾기</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/theme-toggle.js"></script>
+    <script>
+        const loginForm = document.querySelector("form[name=form-login]");
+        const loginButton = document.getElementById('loginButton');
+        const loginButtonText = document.getElementById('loginButtonText');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const errorMessage = document.getElementById('errorMessage');
+        const loginGifIcon = document.querySelector('.login-gif-icon');
+
+        // 테마 변경 시 GIF 아이콘도 업데이트
+        document.addEventListener('themeChanged', (e) => {
+            if (loginGifIcon) {
+                console.log("theme: ", e.detail.theme);
+                loginGifIcon.src = e.detail.theme === 'white' ? '/image/mobius-rumos.gif' : '/image/mobius-nox.gif';
+            }
+        });
+
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(loginForm);
+            const data = Object.fromEntries(formData.entries());
+            const jsonString = JSON.stringify(data);
+
+
+            // const user_id = document.getElementById('user_id').value;
+            // const password = document.getElementById('password').value;
+
+            // Hide error message
+            errorMessage.style.display = 'none';
+
+            // Show loading state
+            loginButton.disabled = true;
+            loginButtonText.textContent = '로그인 중...';
+            loginSpinner.style.display = 'inline-block';
+
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // access_token을 localStorage에 저장
+                    localStorage.setItem('access_token', data.access_token);
+
+                    // 로그인 성공 후 홈페이지로 리다이렉트
+                    window.location.href = '/nexus';
+                } else {
+                    const error = await response.json();
+                    showError(error.detail || '계정이 일치하지 않습니다.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+            } finally {
+                // Reset button state
+                loginButton.disabled = false;
+                loginButtonText.textContent = '로그인';
+                loginSpinner.style.display = 'none';
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Enter key handling
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !loginButton.disabled) {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

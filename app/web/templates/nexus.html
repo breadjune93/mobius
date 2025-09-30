@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mobius</title>
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"/>
+        <link rel="stylesheet" href="/css/fragments/modal.css">
+        <link rel="stylesheet" href="/css/nexus.css">
+    </head>
+
+    <body>
+        <header class="header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <img src="/image/mobius-nox.gif" alt="Mobius Agent" />
+                </div>
+                <h1 class="header-title">Mobius</h1>
+            </div>
+            <div class="header-controls">
+                <button class="header-btn settings-btn" id="setting_btn" title="설정">
+                    <i class="fa fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="modal-overlay" id="setting_modal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2>설정</h2>
+                    <button name="close" class="modal-close-btn">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+<!--                <div class="modal-content">-->
+<!--                    <div class="setting-section">-->
+<!--                        <h3 class="setting-title">테마</h3>-->
+<!--                        <div class="setting-item">-->
+<!--                            <div class="theme-toggle-container">-->
+<!--                                <button class="theme-toggle" id="modalThemeToggle">-->
+<!--                                    <div class="theme-toggle-slider">-->
+<!--                                        <span class="theme-icon theme-icon-dark">🌙</span>-->
+<!--                                        <span class="theme-icon theme-icon-light">☀️</span>-->
+<!--                                    </div>-->
+<!--                                </button>-->
+<!--                                <span class="theme-toggle-label" id="themeLabel">다크 모드</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Logout Section &ndash;&gt;-->
+<!--                    <div class="setting-section">-->
+<!--                        <div class="setting-item logout-section">-->
+<!--                            <button class="logout-btn" id="logoutBtn">-->
+<!--                                <i class="fa fa-sign-out-alt"></i>-->
+<!--                                로그아웃-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+                <div class="modal-footer">
+                    <button name="close" class="modal-btn modal-btn-secondary">취소</button>
+                    <button name="submit" class="modal-btn modal-btn-primary">저장</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="create_workspace_modal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2>워크스페이스 생성</h2>
+                    <button name="close" class="modal-close-btn">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-content">
+                    <form name="form-workspace">
+                        <div class="form-group">
+                            <label for="roomTitle" class="form-label">제목</label>
+                            <input
+                                type="text"
+                                id="roomTitle"
+                                name="title"
+                                class="form-input"
+                                placeholder="채팅방 제목을 입력하세요"
+                                required
+                                maxlength="50"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="roomDescription" class="form-label">설명</label>
+                            <textarea
+                                id="roomDescription"
+                                name="description"
+                                class="form-textarea"
+                                placeholder="채팅방에 대한 간단한 설명을 입력하세요"
+                                maxlength="200"
+                                rows="3"
+                            ></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="roomType" class="form-label">유형</label>
+                            <select id="roomType" name="type" class="form-select">
+                                <option value="general">일반</option>
+                                <option value="development">기획</option>
+                                <option value="deployment">개발</option>
+                                <option value="design">운영</option>
+                                <option value="deployment">배포</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" name="close" class="modal-btn modal-btn-secondary">취소</button>
+                            <button type="submit" class="modal-btn modal-btn-primary">
+                                <span>생성</span>
+                                <div class="loading-spinner" style="display: none;"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container">
+            <!-- Room Controls -->
+            <div class="controls">
+                <div class="controls-left">
+                    <h2 class="controls-title">넥서스</h2>
+                    <span class="controls-total-workspace" id="roomCount">total - 0 Workspace</span>
+                </div>
+                <div class="controls-right">
+                    <button class="btn btn-primary" id="create_workspace">
+                        <i class="fa fa-plus"></i>
+                        워크스페이스 생성
+                    </button>
+                    <button class="btn btn-secondary" id="refreshRoomsBtn">
+                        <i class="fa fa-sync-alt"></i>
+                        새로고침
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Area -->
+            <div class="search">
+                <div class="search-group">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" class="search-input" placeholder="검색...">
+                        <i class="fa fa-search search-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace Area -->
+            <div class="workspace" id="roomGallery">
+<!--                <div class="workspace-group" data-space-id="1" onclick="joinRoom(1)">-->
+<!--                    <div class="workspace-cover">-->
+<!--                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop&crop=center" alt="개발 상담">-->
+<!--                        <div class="workspace-overlay">-->
+<!--                            <div class="unread-badge">-->
+<!--                                <i class="fa fa-comment-dots"></i>-->
+<!--                                <span>+5</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    <div class="workspace-content">-->
+<!--                        <div class="workspace-header">-->
+<!--                            <h3 class="workspace-title">프로젝트 개발 상담</h3>-->
+<!--                            <span class="workspace-type development">개발</span>-->
+<!--                        </div>-->
+<!--                        <p class="workspace-description">React와 Node.js 프로젝트 관련 질문과 해결책을 논의합니다</p>-->
+<!--                        <div class="workspace-stats">-->
+<!--                            <div class="stat-item">-->
+<!--                                <i class="fa fa-user"></i>-->
+<!--                                <span>유저 7명</span>-->
+<!--                            </div>-->
+<!--                            <div class="stat-item">-->
+<!--                                <i class="fa fa-layer-group"></i>-->
+<!--                                <span>에이전트 1명</span>-->
+<!--                            </div>-->
+<!--                            <div class="stat-item">-->
+<!--                                <i class="fa fa-clock"></i>-->
+<!--                                <span>2025-01-15</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">
+                        <i class="fa fa-place-of-worship"></i>
+                    </div>
+                    <h3>워크스페이스가 없습니다</h3>
+                    <p>새로운 워크스페이스를 만들어 에이전트와 대화를 시작해보세요.</p>
+                </div>
+            </div>
+        </div>
+
+        <script src="/js/theme-toggle.js"></script>
+        <script src="/js/modal.js"></script>
+        <script>
+            const workspaceForm = document.querySelector("form[name=form-workspace]")
+
+            window.workspaceCreateModal = new Modal(
+                document.querySelector("#setting_btn"),
+                document.querySelector("#setting_modal"),
+                null
+            );
+
+            window.workspaceCreateModal = new Modal(
+                document.querySelector("#create_workspace"),
+                document.querySelector("#create_workspace_modal"),
+                null
+            );
+
+            workspaceForm.addEventListener("submit", async function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(workspaceForm);
+                const data = Object.fromEntries(formData.entries());
+                const jsonString = JSON.stringify(data);
+
+                console.log(jsonString);
+            })
+        </script>
+    </body>
+</html>

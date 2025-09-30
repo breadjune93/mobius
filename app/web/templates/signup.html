@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에이전트 Alpha - 회원가입</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/chat.css">
+    <link rel="stylesheet" href="/css/form.css">
+</head>
+<body>
+    <div class="form-container">
+        <div class="theme-toggle-container">
+            <button class="theme-toggle" id="themeToggle">
+                <div class="theme-toggle-slider">
+                    <span class="theme-icon theme-icon-dark">🌙</span>
+                    <span class="theme-icon theme-icon-light">☀️</span>
+                </div>
+            </button>
+        </div>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="form-logo">
+                    <img src="/image/mobius-nox.gif" alt="Mobius" class="login-gif-icon" />
+                </h1>
+
+                <p class="form-title">새 계정을 만들어 에이전트와 대화하세요</p>
+            </div>
+
+            <form class="form-area" id="signupForm">
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage" style="display: none;"></div>
+
+                <div class="form-group">
+                    <label for="user_id" class="form-label">아이디</label>
+                    <input
+                        type="text"
+                        id="user_id"
+                        name="user_id"
+                        class="form-input"
+                        placeholder="아이디를 입력하세요"
+                        required
+                        minlength="3"
+                        maxlength="20"
+                    />
+                    <small class="form-help">3-20자의 영문, 숫자, 언더스코어(_)만 사용 가능</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="username" class="form-label">이름</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        class="form-input"
+                        placeholder="이름을 입력하세요"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">비밀번호</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-input"
+                        placeholder="비밀번호를 입력하세요"
+                        required
+                        minlength="6"
+                    />
+                    <small class="form-help">최소 6자 이상</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">비밀번호 확인</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        class="form-input"
+                        placeholder="비밀번호를 다시 입력하세요"
+                        required
+                    />
+                </div>
+
+                <button type="submit" class="submit-button" id="signupButton">
+                    <span id="signupButtonText">회원가입</span>
+                    <div class="loading-spinner" id="signupSpinner" style="display: none;"></div>
+                </button>
+            </form>
+
+            <div class="form-footer">
+                <p>
+                    이미 계정이 있으신가요?
+                    <a href="/login" class="forgot-password">로그인</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/theme-toggle.js"></script>
+    <script>
+        const signupForm = document.getElementById('signupForm');
+        const signupButton = document.getElementById('signupButton');
+        const signupButtonText = document.getElementById('signupButtonText');
+        const signupSpinner = document.getElementById('signupSpinner');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const loginGifIcon = document.querySelector('.login-gif-icon');
+
+        // 테마 변경 시 GIF 아이콘도 업데이트
+        document.addEventListener('themeChanged', (e) => {
+            if (loginGifIcon) {
+                loginGifIcon.src = e.detail.theme === 'white' ? '/image/mobius-rumos.gif' : '/image/mobius-nox.gif';
+            }
+        });
+
+        // 비밀번호 확인 검증
+        function validatePasswords() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showError('비밀번호가 일치하지 않습니다.');
+                return false;
+            }
+            return true;
+        }
+
+        // 사용자명 검증
+        function validateUsername() {
+            const username = document.getElementById('username').value;
+            const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+
+            if (!usernameRegex.test(username)) {
+                showError('아이디는 3-20자의 영문, 숫자, 언더스코어(_)만 사용 가능합니다.');
+                return false;
+            }
+            return true;
+        }
+
+        signupForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Hide messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            // Validate form
+            if (!validateUsername() || !validatePasswords()) {
+                return;
+            }
+
+            const user_id = document.getElementById('user_id').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const theme = localStorage.getItem("theme") != null ? localStorage.getItem("theme") : "dark";
+
+            // Show loading state
+            signupButton.disabled = true;
+            signupButtonText.textContent = '회원가입 중...';
+            signupSpinner.style.display = 'inline-block';
+
+            try {
+                const response = await fetch('/api/v1/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: user_id,
+                        username: username,
+                        password: password,
+                        theme: theme
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    showError(result.message || '회원가입에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showError('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+            } finally {
+                signupButton.disabled = false;
+                signupButtonText.textContent = '회원가입';
+                signupSpinner.style.display = 'none';
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        // Real-time validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+
+            if (confirmPassword && password !== confirmPassword) {
+                this.setCustomValidity('비밀번호가 일치하지 않습니다.');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        document.getElementById('username').addEventListener('input', function() {
+            const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+            if (this.value && !usernameRegex.test(this.value)) {
+                this.setCustomValidity('3-20자의 영문, 숫자, 언더스코어만 사용 가능합니다.');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Enter key handling
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !signupButton.disabled) {
+                signupForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
