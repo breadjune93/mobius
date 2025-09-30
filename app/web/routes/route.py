@@ -6,9 +6,6 @@ router = APIRouter()
 current_dir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 views_dir = os.path.join(current_dir, "templates")
 
-from app.core.security import delete_token
-
-
 @router.get("/signup")
 def signup():
     return FileResponse(os.path.join(views_dir, "signup.html"))
@@ -35,5 +32,4 @@ def workspace():
 
 @router.post("/logout")
 def logout(request: Request):
-    delete_token(request)
     return {"message": "로그아웃되었습니다"}

@@ -1,7 +1,11 @@
 import bcrypt
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from app.core.config import settings
 from jose import jwt
+from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
+
+class SecurityError(Exception):
+    pass
 
 def hash_password(plain: str) -> str:
     salt = bcrypt.gensalt(rounds=settings.BCRYPT_ROUNDS)
@@ -10,50 +14,40 @@ def hash_password(plain: str) -> str:
 def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed.encode())
 
-def create_access_token(sub: str) -> str:
-    exp = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    payload = {"sub": sub, "exp": exp, "type": "access"}
+def create_access_token(subject: str, minutes: int = 30) -> str:
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": subject,
+        "iat": now,
+        "exp": now + timedelta(minutes=minutes),
+        "typ": "access",
+    }
     return jwt.encode(payload, settings.SECRET, algorithm=settings.JWT_ALG)
 
-def create_refresh_token(sub: str) -> str:
-    exp = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    payload = {"sub": sub, "exp": exp, "type": "refresh"}
+def create_refresh_token(subject: str, days: int = 7) -> str:
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": subject,
+        "iat": now,
+        "exp": now + timedelta(days=days),
+        "typ": "refresh",
+    }
     return jwt.encode(payload, settings.SECRET, algorithm=settings.JWT_ALG)
 
 def decode_token(token: str) -> dict:
     return jwt.decode(token, settings.SECRET, algorithms=[settings.JWT_ALG])
 
-# 토큰 블랙리스트 (실제 운영환경에서는 Redis 등 외부 저장소 사용 권장)
-_token_blacklist = set()
-
-def delete_token(token: str) -> dict:
-    """
-    토큰을 무효화(블랙리스트에 추가)
-    JWT는 stateless하므로 서버에서 토큰을 완전히 삭제할 수 없지만,
-    블랙리스트를 통해 무효화된 토큰을 추적할 수 있음
-    """
+def verify_access_token(token: str) -> str:
     try:
-        # 토큰 검증 후 블랙리스트에 추가
-        decoded = decode_token(token)
-        _token_blacklist.add(token)
-        return {
-            "message": "토큰이 무효화되었습니다",
-            "user_id": decoded.get("sub"),
-            "token_type": decoded.get("type")
-        }
-    except Exception as e:
-        raise ValueError(f"유효하지 않은 토큰: {str(e)}")
-
-def is_token_blacklisted(token: str) -> bool:
-    """
-    토큰이 블랙리스트에 있는지 확인
-    """
-    return token in _token_blacklist
-
-def verify_token_not_blacklisted(token: str) -> bool:
-    """
-    토큰이 블랙리스트에 없는지 확인하고 디코드
-    """
-    if is_token_blacklisted(token):
-        raise ValueError("무효화된 토큰입니다")
-    return True
+        payload = jwt.decode(token, settings.SECRET, algorithms=[settings.JWT_ALG])
+        if payload.get("typ") != "access":
+            raise SecurityError("유효하지 않은 액세스 토큰")
+        sub = payload.get("sub")
+        if not sub:
+            raise SecurityError("사용자가 존재하지 않음")
+        return sub
+    except ExpiredSignatureError:
+        raise SecurityError("토큰 만료")
+    except JWTClaimsError or JWTError as e:
+        # 클레임 불일치 또는 서명/형식/알고리즘 오류
+        raise SecurityError(f"토큰 검증 실패: {e}")

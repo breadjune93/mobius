@@ -33,6 +33,17 @@ class AuthService:
         try:
             user = self.user_repository.get_by_user_id(db, user_id)
 
+            print(f"=== LOGIN DEBUG ===")
+            print(f"user_id: {user_id}")
+            print(f"password: {password}")
+            print(f"user found: {user is not None}")
+            if user:
+                print(f"user.id: {user.id}")
+                print(f"user.password: {user.password}")
+                verification_result = verify_password(password, user.password)
+                print(f"password verification: {verification_result}")
+            print(f"==================")
+
             if not user or not verify_password(password, user.password):
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="계정이 일치하지 않습니다.")
 
@@ -52,4 +63,5 @@ class AuthService:
             }
         except Exception as e:
             db.rollback()
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="계정이 일치하지 않습니다.")
+            print(f"Login exception: {type(e).__name__}: {str(e)}")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"로그인 실패: {str(e)}")

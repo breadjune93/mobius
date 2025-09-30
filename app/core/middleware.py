@@ -4,7 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from typing import Callable, Any
 from sqlalchemy.orm import Session
-from app.core.security import decode_token, is_token_blacklisted
+from app.core.security import decode_token, verify_access_token
 from app.db.base import SessionLocal
 from app.db.models.user import User
 
@@ -12,35 +12,21 @@ from app.db.models.user import User
 def _verify_refresh_token(token: str, db: Session) -> Any | None:
     """Refresh token 검증 (DB 저장된 토큰과 비교)"""
     try:
-        if is_token_blacklisted(token):
-            return None
         payload = decode_token(token)
-        if payload.get("type") != "refresh":
+
+        if payload.get("typ") != "refresh":
             return None
 
         user_id = payload.get("sub")
         user = db.query(User).filter(User.id == user_id).first()
+
         if not user or user.refresh_token != token or not user.is_active:
             return None
 
         return user_id
-    except Exception:
+    except Exception as e:
+        print(f"refresh token exception: {e}")
         return None
-
-
-def _verify_access_token(token: str) -> Any | None:
-    """Access token 검증"""
-    try:
-        if is_token_blacklisted(token):
-            return None
-        payload = decode_token(token)
-        print(f"verify_access_token: {payload}")
-        if payload.get("type") != "access":
-            return None
-        return payload.get("sub")
-    except Exception:
-        return None
-
 
 class AuthMiddleware(BaseHTTPMiddleware):
     """
@@ -72,8 +58,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             auth_header = request.headers.get("Authorization")
             if auth_header and auth_header.startswith("Bearer "):
                 access_token = auth_header.split(" ")[1]
-                user_id = _verify_access_token(access_token)
-                print(f"Access token 검증 결과: {user_id}")
+                user_id = verify_access_token(access_token)
 
             # 2. Access token이 유효하지 않으면 refresh token으로 검증
             if not user_id:
@@ -82,7 +67,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     db = SessionLocal()
                     try:
                         user_id = _verify_refresh_token(refresh_token, db)
-                        print(f"Refresh token 검증 결과: {user_id}")
                     finally:
                         db.close()
 

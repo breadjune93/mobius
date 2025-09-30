@@ -9,6 +9,6 @@ class User(Base):
     username = Column(String(50), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)  # 사용자 활성 상태
-    refresh_token = Column(String(50), unique=True, nullable=True)
+    refresh_token = Column(String(255), unique=True, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
