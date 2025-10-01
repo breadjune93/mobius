@@ -75,7 +75,7 @@
                     </button>
                 </div>
                 <div class="modal-content">
-                    <form name="form-workspace">
+                    <form name="create-workspace">
                         <div class="form-group">
                             <label for="roomTitle" class="form-label">제목</label>
                             <input
@@ -83,7 +83,7 @@
                                 id="roomTitle"
                                 name="title"
                                 class="form-input"
-                                placeholder="채팅방 제목을 입력하세요"
+                                placeholder="워크스페이스 제목을 입력하세요"
                                 required
                                 maxlength="50"
                             />
@@ -94,7 +94,7 @@
                                 id="roomDescription"
                                 name="description"
                                 class="form-textarea"
-                                placeholder="채팅방에 대한 간단한 설명을 입력하세요"
+                                placeholder="워크스페이스에 대한 간단한 설명을 입력하세요"
                                 maxlength="200"
                                 rows="3"
                             ></textarea>
@@ -103,16 +103,16 @@
                             <label for="roomType" class="form-label">유형</label>
                             <select id="roomType" name="type" class="form-select">
                                 <option value="general">일반</option>
-                                <option value="development">기획</option>
-                                <option value="deployment">개발</option>
-                                <option value="design">운영</option>
-                                <option value="deployment">배포</option>
+                                <option value="plan">기획</option>
+                                <option value="development">개발</option>
+                                <option value="operation">운영</option>
+                                <option value="deploy">배포</option>
                             </select>
                         </div>
 
                         <div class="modal-footer">
                             <button type="button" name="close" class="modal-btn modal-btn-secondary">취소</button>
-                            <button type="submit" class="modal-btn modal-btn-primary">
+                            <button type="submit" name="create-workspace" class="modal-btn modal-btn-primary">
                                 <span>생성</span>
                                 <div class="loading-spinner" style="display: none;"></div>
                             </button>
@@ -198,16 +198,19 @@
             </div>
         </div>
 
-        <script src="/js/theme-toggle.js"></script>
+<!--        <script src="/js/theme-toggle.js"></script>-->
         <script src="/js/modal.js"></script>
+        <script src="/js/common/api.js"></script>
         <script>
-            const workspaceForm = document.querySelector("form[name=form-workspace]")
-
-            window.workspaceCreateModal = new Modal(
-                document.querySelector("#setting_btn"),
-                document.querySelector("#setting_modal"),
-                null
-            );
+            const workspaceForm = document.querySelector("form[name=create-workspace]")
+            const workspaceButton = workspaceForm.querySelector('button[name=create-workspace]');
+            const workspaceButtonText = workspaceButton.querySelector("span");
+            const workspaceLoadingSpinner = workspaceButton.querySelector(".loading-spinner");
+            // window.workspaceCreateModal = new Modal(
+            //     document.querySelector("#setting_btn"),
+            //     document.querySelector("#setting_modal"),
+            //     null
+            // );
 
             window.workspaceCreateModal = new Modal(
                 document.querySelector("#create_workspace"),
@@ -218,12 +221,61 @@
             workspaceForm.addEventListener("submit", async function(e) {
                 e.preventDefault();
 
+                // 폼 데이터 수집
                 const formData = new FormData(workspaceForm);
                 const data = Object.fromEntries(formData.entries());
-                const jsonString = JSON.stringify(data);
 
-                console.log(jsonString);
+                // // owner 추가 (현재 로그인한 사용자 정보 - 추후 JWT에서 추출 가능)
+                // // 임시로 토큰이 있으면 사용자가 로그인한 것으로 간주
+                // const token = window.api.getAccessToken();
+                // if (!token) {
+                //     alert('로그인이 필요합니다.');
+                //     window.location.href = '/login';
+                //     return;
+                // }
+
+                isCompleted(false);
+
+                try {
+                    const response = await window.api.post('/api/v1/nexus/workspace', data);
+                    console.log("response: ", response);
+
+                    if (response && response.ok) {
+                        const result = await response.json();
+
+                        // 워크스페이스 생성 성공
+                        console.log('Workspace created successfully:', result);
+
+                        // 모달 닫기
+                        window.workspaceCreateModal.close();
+
+                        // 폼 초기화
+                        workspaceForm.reset();
+
+                        // 워크스페이스 목록 새로고침 (추후 구현 예정)
+                        // refreshWorkspaces();
+
+                        alert('워크스페이스가 생성되었습니다.');
+                    } else if (response) {
+                        const error = await response.json();
+                        alert(error.detail || '워크스페이스 생성에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('Workspace creation error:', error);
+                    alert('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                } finally {
+                    // 버튼 상태 복원
+                    submitButton.disabled = false;
+                    submitButtonText.style.display = 'inline';
+                    loadingSpinner.style.display = 'none';
+                }
             })
+
+            function isCompleted(flag) {
+                workspaceButton.disabled = !flag;
+                workspaceButtonText.textContent = !flag ? "로그인 중..." : "로그인";
+                workspaceLoadingSpinner.style.display = !flag ? "inline-block" : "none";
+            }
         </script>
     </body>
 </html>

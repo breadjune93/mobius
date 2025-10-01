@@ -43,7 +43,7 @@
 
 .form-title {
     font-size: 1rem;
-    color: #a8aaae;
+    color: var(--light-600);
 }
 
 .form-area {
@@ -122,7 +122,7 @@
     text-align: center;
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 1px solid #3a3b3f;
+    border-top: 1px solid var(--dark-300);
 }
 
 .form-footer p {
@@ -166,93 +166,93 @@
 }
 
 /* White Theme Styles */
-body.white-theme {
-    background-color: #f8f9fa;
-}
+/*body.white-theme {*/
+/*    background-color: var(--light-500);*/
+/*}*/
 
-body.white-theme .from-container {
-    background-color: #f8f9fa;
+body.white-theme .form-container {
+    background-color: var(--light-300);
 }
 
 body.white-theme .form-card {
-    background-color: #ffffff;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    background-color: var(--light-100);
+    border: 1px solid var(--light-300);
+    box-shadow: 0 10px 25px var(--shadow);
 }
 
 body.white-theme .form-logo img {
-    content: url('../image/mobius-rumos.gif');
+    content: url('../image/mobius-lux.gif');
 }
 
 body.white-theme .form-title {
-    color: #6c757d;
+    color: var(--dark-200);
 }
 
 body.white-theme .form-label {
-    color: #212529;
+    color: var(--dark-900);
 }
 
 body.white-theme .form-input {
-    background-color: #ffffff;
-    border: 1px solid #ced4da;
-    color: #212529;
+    background-color: var(--light-100);
+    border: 1px solid var(--dark-300);
+    color: var(--dark-600);
 }
 
 body.white-theme .form-input:focus {
-    border-color: #5b4dd6;
+    border-color: var(--brand-dark);
     box-shadow: 0 0 0 3px rgba(91, 77, 214, 0.15);
 }
 
 body.white-theme .form-input::placeholder {
-    color: #6c757d;
+    color: var(--dark-200);
 }
 
 body.white-theme .submit-button {
-    background-color: #5b4dd6;
+    background-color: var(--brand-light);
 }
 
 body.white-theme .submit-button:hover {
-    background-color: #4c3fbb;
+    background-color: var(--brand-base);
 }
 
 body.white-theme .submit-button:disabled {
-    background-color: #adb5bd;
+    background-color: var(--light-800);
 }
 
 body.white-theme .form-footer {
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--light-600);
 }
 
 body.white-theme .form-footer p {
-    color: #6c757d;
+    color: var(--dark-300);
 }
 
 body.white-theme .forgot-password {
-    color: #5b4dd6;
+    color: var(--brand-deep);
 }
 
 body.white-theme .forgot-password:hover {
-    color: #6d5de8;
+    color: var(--brand-dark);
 }
 
 body.white-theme .error-message {
-    background-color: rgba(220, 53, 69, 0.1);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-    color: #dc3545;
+    background-color: var(--danger-dark);
+    border: 1px solid var(--danger-deep);
+    color: var(--danger-base);
 }
 
 /* Theme Toggle - White Theme */
 body.white-theme .theme-toggle {
-    background-color: #e9ecef;
+    background-color: var(--light-400);
 }
 
 body.white-theme .theme-toggle:hover {
-    background-color: #dee2e6;
+    background-color: var(--light-500);
 }
 
 body.white-theme .theme-toggle-slider {
     transform: translateX(30px);
-    background-color: #5b4dd6;
+    background-color: var(--brand-base);
 }
 
 body.white-theme .theme-icon-dark {
@@ -261,7 +261,7 @@ body.white-theme .theme-icon-dark {
 
 body.white-theme .theme-icon-light {
     opacity: 1;
-    color: #ffffff;
+    color: var(--light-100);
 }
 
 /* Radio Group Styles */
@@ -278,14 +278,14 @@ body.white-theme .theme-icon-light {
     gap: 8px;
     cursor: pointer;
     font-size: 14px;
-    color: #a8aaae;
+    color: var(--light-600);
     padding: 8px 0;
 }
 
 .radio-custom {
     width: 16px;
     height: 16px;
-    border: 2px solid #5b5d62;
+    border: 2px solid var(--dark-300);
     border-radius: 50%;
     position: relative;
     transition: all 0.3s ease;
@@ -297,14 +297,14 @@ body.white-theme .theme-icon-light {
 }
 
 .radio-label input[type="radio"]:checked + .radio-custom {
-    border-color: #5b4dd6;
+    border-color: var(--brand-deep);
 }
 
 .radio-label input[type="radio"]:checked + .radio-custom::after {
     content: '';
     width: 8px;
     height: 8px;
-    background: #5b4dd6;
+    background: var(--brand-deep);
     border-radius: 50%;
     position: absolute;
     top: 50%;
@@ -313,15 +313,15 @@ body.white-theme .theme-icon-light {
 }
 
 .radio-text {
-    color: #d1d5db;
+    color: var(--light-300);
 }
 
 .radio-label:hover .radio-custom {
-    border-color: #5b4dd6;
+    border-color: var(--brand-deep);
 }
 
 .radio-label:hover .radio-text {
-    color: #ffffff;
+    color: var(--light-100);
 }
 
 /* White Theme Radio Styles */

@@ -6,7 +6,7 @@
     <title>에이전트 Alpha - 로그인</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/css/chat.css">
+<!--    <link rel="stylesheet" href="/css/chat.css">-->
     <link rel="stylesheet" href="/css/form.css">
 </head>
 <body>
@@ -76,6 +76,7 @@
     </div>
 
     <script src="/js/theme-toggle.js"></script>
+    <script src="/js/common/api.js"></script>
     <script>
         const loginForm = document.querySelector("form[name=form-login]");
         const loginButton = document.getElementById('loginButton');
@@ -88,7 +89,7 @@
         document.addEventListener('themeChanged', (e) => {
             if (loginGifIcon) {
                 console.log("theme: ", e.detail.theme);
-                loginGifIcon.src = e.detail.theme === 'white' ? '/image/mobius-rumos.gif' : '/image/mobius-nox.gif';
+                loginGifIcon.src = e.detail.theme === 'white' ? '../image/mobius-lux.gif' : '../image/mobius-nox.gif';
             }
         });
 
@@ -98,32 +99,21 @@
             const formData = new FormData(loginForm);
             const data = Object.fromEntries(formData.entries());
 
-            // Hide error message
-            errorMessage.style.display = 'none';
-
             // Show loading state
-            loginButton.disabled = true;
-            loginButtonText.textContent = '로그인 중...';
-            loginSpinner.style.display = 'inline-block';
+            isCompleted(false)
 
             try {
-                const response = await fetch('/api/v1/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
+                const response = await window.api.post('/api/v1/auth/login', data, false);
 
-                if (response.ok) {
-                    const data = await response.json();
+                if (response && response.ok) {
+                    const result = await response.json();
 
                     // access_token을 localStorage에 저장
-                    localStorage.setItem('access_token', data.access_token);
+                    window.api.setAccessToken(result.access_token);
 
                     // 로그인 성공 후 홈페이지로 리다이렉트
                     window.location.href = '/nexus';
-                } else {
+                } else if (response) {
                     const error = await response.json();
                     showError(error.detail || '계정이 일치하지 않습니다.');
                 }
@@ -131,10 +121,8 @@
                 console.error('Login error:', error);
                 showError('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
             } finally {
-                // Reset button state
-                loginButton.disabled = false;
-                loginButtonText.textContent = '로그인';
-                loginSpinner.style.display = 'none';
+                isCompleted(true)
+
             }
         });
 
@@ -143,7 +131,12 @@
             errorMessage.style.display = 'block';
         }
 
-        // Enter key handling
+        function isCompleted(flag) {
+            loginButton.disabled = !flag;
+            loginButtonText.textContent = !flag ? "로그인 중..." : "로그인";
+            loginSpinner.style.display = !flag ? "inline-block" : "none";
+        }
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !loginButton.disabled) {
                 loginForm.dispatchEvent(new Event('submit'));

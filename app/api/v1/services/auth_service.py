@@ -30,23 +30,13 @@ class AuthService:
 
 
     def login(self, db: Session, user_id: str, password: str):
+        user = self.user_repository.get_by_user_id(db, user_id)
+
+        if not user or not verify_password(password, user.password):
+            print(f"비밀번호 불일치")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="계정이 일치하지 않습니다.")
+
         try:
-            user = self.user_repository.get_by_user_id(db, user_id)
-
-            print(f"=== LOGIN DEBUG ===")
-            print(f"user_id: {user_id}")
-            print(f"password: {password}")
-            print(f"user found: {user is not None}")
-            if user:
-                print(f"user.id: {user.id}")
-                print(f"user.password: {user.password}")
-                verification_result = verify_password(password, user.password)
-                print(f"password verification: {verification_result}")
-            print(f"==================")
-
-            if not user or not verify_password(password, user.password):
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="계정이 일치하지 않습니다.")
-
             # 토큰 생성
             access_token = create_access_token(user.id)
             refresh_token = create_refresh_token(user.id)
@@ -63,5 +53,4 @@ class AuthService:
             }
         except Exception as e:
             db.rollback()
-            print(f"Login exception: {type(e).__name__}: {str(e)}")
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"로그인 실패: {str(e)}")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="로그인에 실패했습니다.")

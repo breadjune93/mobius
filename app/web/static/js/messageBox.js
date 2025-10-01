@@ -22,7 +22,7 @@ function createUserMessage(message) {
 // 어시스턴트 메시지 생성
 function createAssistantMessage(message) {
     const currentTheme = window.getTheme ? window.getTheme() : 'dark';
-    const iconSrc = currentTheme === 'white' ? '/image/mobius-rumos.gif' : '/image/mobius-nox.gif';
+    const iconSrc = currentTheme === 'white' ? '/image/mobius-lux.gif' : '/image/mobius-nox.gif';
 
     const messageBox = `
         <div class="message-wrapper">
@@ -46,7 +46,7 @@ function createAssistantMessage(message) {
 // 통합 도구 메시지 생성
 function createToolMessage() {
     const currentTheme = window.getTheme ? window.getTheme() : 'dark';
-    const iconSrc = currentTheme === 'white' ? '/image/mobius-rumos.gif' : '/image/mobius-nox.gif';
+    const iconSrc = currentTheme === 'white' ? '/image/mobius-lux.gif' : '/image/mobius-nox.gif';
     const uniqueId = 'tool-message-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     const messageBox = `
         <div class="message-wrapper">

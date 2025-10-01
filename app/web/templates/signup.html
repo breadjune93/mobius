@@ -114,7 +114,7 @@
         // 테마 변경 시 GIF 아이콘도 업데이트
         document.addEventListener('themeChanged', (e) => {
             if (loginGifIcon) {
-                loginGifIcon.src = e.detail.theme === 'white' ? '/image/mobius-rumos.gif' : '/image/mobius-nox.gif';
+                loginGifIcon.src = e.detail.theme === 'white' ? '../image/mobius-lux.gif' : '../image/mobius-nox.gif';
             }
         });
 

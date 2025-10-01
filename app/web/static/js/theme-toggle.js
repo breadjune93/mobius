@@ -24,11 +24,11 @@ theme_toggle.addEventListener("click", () => {
 function setWhiteTheme(symbol) {
     document.body.classList.add(WHITE_THEME);
     localStorage.setItem('theme', WHITE_THEME);
-    symbol.src = '/image/mobius-rumos.gif';
+    symbol.src = '../image/mobius-lux.gif';
 }
 
 function setDarkTheme(symbol) {
     document.body.classList.remove(WHITE_THEME);
     localStorage.setItem('theme', DARK_THEME);
-    symbol.src = '/image/mobius-nox.gif';
+    symbol.src = '../image/mobius-nox.gif';
 }

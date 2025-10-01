@@ -1,23 +1,19 @@
-from typing import Any
-
 from sqlalchemy.orm import Session
 from app.db.models.workspaces import Workspaces
 
 class WorkspaceRepository:
-    def __init__(self, db: Session):
-        self.db = db
-
-    def get_workspaces(self, user_id: str) -> list[type[Workspaces]]:
+    def get_workspaces(self, db: Session, user_id: str) -> list[type[Workspaces]]:
         return (
-            self.db.query(Workspaces)
+            db.query(Workspaces)
             .filter(Workspaces.owner == user_id)
             .all()
         )
 
-    def get_workspace(self, workspace_id: int) -> Workspaces | None:
-        return self.db.query(Workspaces).filter(Workspaces.id == workspace_id).first()
+    def get_workspace(self, db: Session, workspace_id: int) -> Workspaces | None:
+        return db.query(Workspaces).filter(Workspaces.id == workspace_id).first()
 
     def create(self,
+               db: Session,
                title: str,
                description: str,
                user_id: str,
@@ -30,12 +26,13 @@ class WorkspaceRepository:
             user_count=1,
             agent_count=0,
         )
-        self.db.add(ws)
-        self.db.commit()
-        self.db.refresh(ws)
+        db.add(ws)
+        db.commit()
+        db.refresh(ws)
         return ws
 
     def update(self,
+               db: Session,
                workspace_id: int,
                title: str | None = None,
                description: str | None = None,
@@ -54,15 +51,15 @@ class WorkspaceRepository:
         if owner is not None:
             ws.owner = owner
 
-        self.db.commit()
-        self.db.refresh(ws)
+        db.commit()
+        db.refresh(ws)
         return ws
 
-    def delete(self, workspace_id: int) -> bool:
+    def delete(self, db: Session, workspace_id: int) -> bool:
         ws = self.get_workspace(workspace_id)
         if not ws:
             return False
 
-        self.db.delete(ws)
-        self.db.commit()
+        db.delete(ws)
+        db.commit()
         return True
