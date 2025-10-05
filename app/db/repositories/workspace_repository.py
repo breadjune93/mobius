@@ -17,7 +17,8 @@ class WorkspaceRepository:
                title: str,
                description: str,
                user_id: str,
-               goal: str) -> Workspaces:
+               goal: str,
+               image_url: str = None) -> Workspaces:
         ws = Workspaces(
             title=title,
             description=description,
@@ -25,6 +26,7 @@ class WorkspaceRepository:
             owner=user_id,
             user_count=1,
             agent_count=0,
+            image_url=image_url,
         )
         db.add(ws)
         db.commit()

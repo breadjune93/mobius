@@ -26,9 +26,9 @@ def root():
 def nexus():
     return FileResponse(os.path.join(views_dir, "nexus.html"))
 
-@router.get("/workspace/{room_id}")
-def workspace():
-    return FileResponse(os.path.join(views_dir, "mission.html"))
+@router.get("/pylon")
+def pylon():
+    return FileResponse(os.path.join(views_dir, "pylon.html"))
 
 @router.post("/logout")
 def logout(request: Request):

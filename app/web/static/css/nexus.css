@@ -15,6 +15,13 @@
     gap: 16px;
 }
 
+.nexus-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
 .controls-title {
     margin: 0;
     font-size: 24px;
@@ -72,14 +79,14 @@
 }
 
 /* Room Gallery Grid */
-.workspace {
+.pylon {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 40px;
 }
 
-.workspace-group {
+.pylon-group {
     flex: 1 1 calc(20% - 16px); /* 5개 per row */
     min-width: 320px;
     max-width: 400px;
@@ -90,33 +97,85 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.workspace-group:hover {
+.pylon-group:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.workspace-cover {
+.pylon-cover {
     position: relative;
     width: 100%;
     height: 180px;
     overflow: hidden;
 }
 
-.workspace-cover img {
+.pylon-cover img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
 
-.workspace-group:hover .workspace-cover img {
+.pylon-group:hover .pylon-cover img {
     transform: scale(1.05);
 }
 
-.workspace-overlay {
+.pylon-overlay {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 12px;
+}
+
+.pylon-actions {
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.pylon-group:hover .pylon-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pylon-action-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    color: var(--light-300);
+}
+
+.pylon-action-btn.edit-btn {
+    background: rgba(91, 77, 214, 0.8);
+}
+
+.pylon-action-btn.edit-btn:hover {
+    background: var(--brand-base);
+    transform: scale(1.1);
+}
+
+.pylon-action-btn.delete-btn {
+    background: rgba(220, 38, 38, 0.8);
+}
+
+.pylon-action-btn.delete-btn:hover {
+    background: var(--danger-base);
+    transform: scale(1.1);
 }
 
 .unread-badge {
@@ -162,12 +221,12 @@
 /*    border-color: var(--text-muted);*/
 /*}*/
 
-.workspace-content {
+.pylon-content {
     padding: 20px;
     background-color: var(--dark-700);
 }
 
-.workspace-header {
+.pylon-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -175,7 +234,7 @@
     gap: 12px;
 }
 
-.workspace-title {
+.pylon-title {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
@@ -183,7 +242,7 @@
     flex: 1;
 }
 
-.workspace-type {
+.pylon-type {
     padding: 4px 8px;
     border-radius: 8px;
     font-size: 11px;
@@ -194,24 +253,24 @@
     flex-shrink: 0;
 }
 
-.workspace-type.general {
+.pylon-type.general {
     border: 1px solid var(--light-300);
     background: var(--dark-600);
 }
 
-.workspace-type.development {
+.pylon-type.development {
     background: var(--success-base);
 }
 
-.workspace-type.operation {
+.pylon-type.operation {
     background: var(--warning-base);
 }
 
-.workspace-type.devops {
+.pylon-type.devops {
     background: var(--danger-light);
 }
 
-.workspace-description {
+.pylon-description {
     margin: 0 0 16px 0;
     font-size: 14px;
     line-height: 1.5;
@@ -222,7 +281,7 @@
     color: var(--light-600);
 }
 
-.workspace-stats {
+.pylon-stats {
     display: flex;
     gap: 16px;
     margin-top: auto;
@@ -331,19 +390,19 @@
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-    .workspace-group {
+    .pylon-group {
         flex: 1 1 calc(25% - 15px); /* 4개 per row */
     }
 }
 
 @media (max-width: 900px) {
-    .workspace-groupbox {
+    .pylon-groupbox {
         flex: 1 1 calc(33.333% - 14px); /* 3개 per row */
     }
 }
 
 @media (max-width: 700px) {
-    .workspace-group {
+    .pylon-group {
         flex: 1 1 calc(50% - 10px); /* 2개 per row */
         min-width: 250px;
     }
@@ -371,13 +430,13 @@
 }
 
 @media (max-width: 480px) {
-    .workspace-group {
+    .pylon-group {
         flex: 1 1 100%; /* 1개 per row */
         min-width: auto;
         max-width: none;
     }
 
-    .workspace {
+    .pylon {
         gap: 16px;
     }
 
@@ -390,30 +449,30 @@
         font-size: 13px;
     }
 
-    .workspace-cover {
+    .pylon-cover {
         height: 160px;
     }
 
-    .workspace-content {
+    .pylon-content {
         padding: 16px;
     }
 
-    .workspace-title {
+    .pylon-title {
         font-size: 16px;
     }
 
-    .workspace-stats {
+    .pylon-stats {
         gap: 12px;
     }
 }
 
 /* Accessibility improvements */
-.workspace-group:focus {
+.pylon-group:focus {
     outline: 2px solid var(--brand-deep);
     outline-offset: 2px;
 }
 
-.workspace-group:focus:not(:focus-visible) {
+.pylon-group:focus:not(:focus-visible) {
     outline: none;
 }
 
@@ -429,13 +488,13 @@
     }
 }
 
-.workspace-group {
+.pylon-group {
     animation: fadeInUp 0.3s ease-out;
 }
 
-.workspace-group:nth-child(1) { animation-delay: 0.1s; }
-.workspace-group:nth-child(2) { animation-delay: 0.2s; }
-.workspace-group:nth-child(3) { animation-delay: 0.3s; }
-.workspace-group:nth-child(4) { animation-delay: 0.4s; }
-.workspace-group:nth-child(5) { animation-delay: 0.5s; }
-.workspace-group:nth-child(6) { animation-delay: 0.6s; }
+.pylon-group:nth-child(1) { animation-delay: 0.1s; }
+.pylon-group:nth-child(2) { animation-delay: 0.2s; }
+.pylon-group:nth-child(3) { animation-delay: 0.3s; }
+.pylon-group:nth-child(4) { animation-delay: 0.4s; }
+.pylon-group:nth-child(5) { animation-delay: 0.5s; }
+.pylon-group:nth-child(6) { animation-delay: 0.6s; }

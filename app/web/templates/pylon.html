@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에이전트 Alpha</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body>
+        <header class="header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <img src="/image/mobius-nox.gif" alt="Mobius Agent" />
+                </div>
+                <h1 class="header-title">Mobius</h1>
+            </div>
+            <div class="header-controls">
+                <button class="header-btn settings-btn" id="setting_btn" title="설정">
+                    <i class="fa fa-cog"></i>
+                </button>
+                <button class="header-btn menu-btn" onclick="toggleSidebar()" title="메뉴">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>에이전트</h2>
+            <button class="close-btn" onclick="closeSidebar()" title="닫기">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="sidebar-content">
+            <!-- New Agent Button -->
+            <button class="new-chat-btn" onclick="createNewChat()" title="New 에이전트">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                New 에이전트
+            </button>
+            
+            <!-- Agent List -->
+            <div class="chat-history">
+                <h3>적용된 에이전트</h3>
+                <div class="chat-list" id="chatList">
+                    <!-- Agent items will be added here dynamically -->
+                    <div class="chat-item active" onclick="selectChat(this)">
+                        <div class="chat-title">현재 에이전트</div>
+                        <div class="chat-preview">현재 적용된 에이전트...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+<!--    <div class="modal-overlay" id="settingsModal">-->
+<!--        <div class="modal-container">-->
+<!--            <div class="modal-header">-->
+<!--                <h2>설정</h2>-->
+<!--                <button class="modal-close-btn" id="closeSettingsModal">-->
+<!--                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--                        <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                        <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                    </svg>-->
+<!--                </button>-->
+<!--            </div>-->
+
+<!--            <div class="modal-content">-->
+<!--                &lt;!&ndash; Theme Setting &ndash;&gt;-->
+<!--                <div class="setting-section">-->
+<!--                    <h3 class="setting-title">테마</h3>-->
+<!--                    <div class="setting-item">-->
+<!--                        <div class="theme-toggle-container">-->
+<!--                            <button class="theme-toggle" id="modalThemeToggle">-->
+<!--                                <div class="theme-toggle-slider">-->
+<!--                                    <span class="theme-icon theme-icon-dark">🌙</span>-->
+<!--                                    <span class="theme-icon theme-icon-light">☀️</span>-->
+<!--                                </div>-->
+<!--                            </button>-->
+<!--                            <span class="theme-toggle-label" id="themeLabel">다크 모드</span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Assistant Setting &ndash;&gt;-->
+<!--                <div class="setting-section">-->
+<!--                    <h3 class="setting-title">AI 어시스턴트</h3>-->
+<!--                    <div class="setting-item">-->
+<!--                        <select class="setting-select" id="assistantSelect">-->
+<!--                            <option value="claude">Claude (Anthropic)</option>-->
+<!--                            <option value="gpt">GPT (OpenAI)</option>-->
+<!--                            <option value="gemini">Gemini (Google)</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Chat Mode Setting &ndash;&gt;-->
+<!--                <div class="setting-section">-->
+<!--                    <h3 class="setting-title">대화 모드</h3>-->
+<!--                    <div class="setting-item">-->
+<!--                        <div class="radio-group">-->
+<!--                            <label class="radio-label">-->
+<!--                                <input type="radio" name="chatMode" value="plan" id="planMode" checked>-->
+<!--                                <span class="radio-custom"></span>-->
+<!--                                <span class="radio-text">Plan 모드</span>-->
+<!--                            </label>-->
+<!--                            <label class="radio-label">-->
+<!--                                <input type="radio" name="chatMode" value="dev" id="devMode">-->
+<!--                                <span class="radio-custom"></span>-->
+<!--                                <span class="radio-text">Dev 모드</span>-->
+<!--                            </label>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; Logout Section &ndash;&gt;-->
+<!--                <div class="setting-section">-->
+<!--                    <div class="setting-item logout-section">-->
+<!--                        <button class="logout-btn" id="logoutBtn">-->
+<!--                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--                                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                                <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                                <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                            </svg>-->
+<!--                            로그아웃-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="modal-footer">-->
+<!--                <button class="modal-btn modal-btn-secondary" id="cancelSettings">취소</button>-->
+<!--                <button class="modal-btn modal-btn-primary" id="saveSettings">저장</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+    <div class="content-title-wrapper" id="contentTitleWrapper">
+        <div class="content-title">
+            <h2 class="pylon-name" id="pylonName">Loading...</h2>
+            <p class="pylon-desc" id="pylonDesc"></p>
+        </div>
+    </div>
+
+    <div class="chat-container scroll"></div>
+
+    <div class="input-container">
+        <div class="input-wrapper">
+            <label>
+                <textarea class="message-input scroll" placeholder="메시지를 입력하세요" rows="1"></textarea>
+            </label>
+            <button class="send-button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
+    <script type="application/javascript" src="/js/api-helper.js"></script>
+    <script type="application/javascript" src="/js/common/theme-toggle.js"></script>
+    <script type="application/javascript" src="/js/settings-modal.js"></script>
+    <script type="application/javascript" src="/js/markdown.js"></script>
+    <script type="application/javascript" src="/js/messageBox.js"></script>
+    <script type="application/javascript" src="/js/common/util.js"></script>
+    <script type="application/javascript" src="/js/chat.js"></script>
+    <script type="application/javascript" src="/js/common/api.js"></script>
+    <script>
+        // URL에서 pylon ID 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const pylonId = urlParams.get('id');
+
+        // 페이지 로드 시 pylon 정보 가져오기
+        document.addEventListener("DOMContentLoaded", async function() {
+            if (!pylonId) {
+                alert('파일런 ID가 없습니다.');
+                window.location.href = '/nexus';
+                return;
+            }
+
+            try {
+                const response = await window.api.get(`/api/v1/nexus/pylon/${pylonId}`);
+
+                if (response && response.ok) {
+                    const result = await response.json();
+                    const pylon = result.pylon;
+
+                    // 파일런 정보를 페이지에 표시
+                    console.log('Pylon loaded:', pylon);
+
+                    // 헤더 타이틀은 Mobius로 고정 (업데이트 하지 않음)
+
+                    // Content Title 영역 업데이트
+                    const pylonName = document.getElementById('pylonName');
+                    const pylonDesc = document.getElementById('pylonDesc');
+                    if (pylonName) {
+                        pylonName.textContent = pylon.title;
+                    }
+                    if (pylonDesc) {
+                        pylonDesc.textContent = pylon.description;
+                    }
+
+                    // 채팅 미리보기 업데이트
+                    const chatPreview = document.querySelector('.chat-preview');
+                    if (chatPreview) {
+                        chatPreview.textContent = pylon.description;
+                    }
+
+                    // 전역 변수로 pylon 정보 저장
+                    window.currentPylon = pylon;
+                } else if (response) {
+                    const error = await response.json();
+                    alert(error.detail || '파일런 정보를 불러올 수 없습니다.');
+                    window.location.href = '/nexus';
+                }
+            } catch (error) {
+                console.error('Failed to load pylon:', error);
+                alert('파일런 정보를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.');
+                window.location.href = '/nexus';
+            }
+        });
+    </script>
+</body>
+</html>

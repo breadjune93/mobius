@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-class WorkspaceResponse(BaseModel):
+class PylonResponse(BaseModel):
     id: int
     title: str
     description: str
@@ -9,32 +9,34 @@ class WorkspaceResponse(BaseModel):
     owner: str
     user_count: int
     agent_count: int
+    image_url: str = None
     created_at: datetime
 
-class GetWorkspacesRequest(BaseModel):
+class GetPylonsRequest(BaseModel):
     user_id: str = Field(max_length=50)
 
-class GetWorkspacesResponse(BaseModel):
-    workspaces: list[WorkspaceResponse]
+class GetPylonsResponse(BaseModel):
+    pylons: list[PylonResponse]
 
-class GetWorkspaceRequest(BaseModel):
-    workspace_id: int = Field()
+class GetPylonRequest(BaseModel):
+    pylon_id: int = Field()
 
-class GetWorkspaceResponse(BaseModel):
-    workspace: WorkspaceResponse
+class GetPylonResponse(BaseModel):
+    pylon: PylonResponse
 
-class CreateWorkspace(BaseModel):
+class CreatePylon(BaseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=255, default="")
     type: str = Field(max_length=50, default="general")  # frontend에서 type으로 전송
     owner: str = Field(max_length=50, default="")  # JWT에서 추출 예정
+    image_url: str = Field(max_length=500, default="")
 
-class UpdateWorkspace(BaseModel):
+class UpdatePylon(BaseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=255)
     goal: str = Field(max_length=50, default="NORMAL")
 
-class DeleteWorkspace(BaseModel):
+class DeletePylon(BaseModel):
     id: int = Field()
     owner: str = Field(max_length=50)
 

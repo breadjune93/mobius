@@ -1,5 +1,30 @@
 @import "root.css";
 
+.content-title-wrapper {
+    padding: 2rem 1rem 1rem 1rem;
+    background-color: var(--dark-600);
+    border-bottom: 1px solid var(--dark-400);
+}
+
+.content-title {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.pylon-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--light-100);
+    margin: 0 0 0.5rem 0;
+}
+
+.pylon-desc {
+    font-size: 0.875rem;
+    color: var(--light-600);
+    margin: 0;
+    line-height: 1.5;
+}
+
 .chat-container {
     flex: 1;
     overflow-y: auto;
@@ -178,7 +203,7 @@
     position: absolute;
     right: 0.5rem;
     bottom: 0.9rem;
-    background-color: #10a37f;
+    background-color: var(--brand-base);
     color: white;
     border: none;
     border-radius: 0.375rem;
@@ -190,7 +215,7 @@
 }
 
 .send-button:hover {
-    background-color: #0d8f6f;
+    background-color: var(--brand-dark);
 }
 
 .timestamp {
@@ -295,8 +320,8 @@
 }
 
 .new-chat-btn:hover {
-    border-color: #10a37f;
-    background-color: rgba(16, 163, 127, 0.1);
+    border-color: var(--brand-base);
+    background-color: rgba(109, 93, 232, 0.1);
 }
 
 /* Chat History */
@@ -325,12 +350,12 @@
 }
 
 .chat-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(109, 93, 232, 0.15);
 }
 
 .chat-item.active {
-    background-color: rgba(16, 163, 127, 0.2);
-    border-color: #10a37f;
+    background-color: rgba(109, 93, 232, 0.2);
+    border-color: var(--brand-base);
 }
 
 .chat-title {

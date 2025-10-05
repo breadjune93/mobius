@@ -66,54 +66,107 @@
             </div>
         </div>
 
-        <div class="modal-overlay" id="create_workspace_modal">
+        <div class="modal-overlay" id="create_pylon_modal">
             <div class="modal-container">
                 <div class="modal-header">
-                    <h2>워크스페이스 생성</h2>
+                    <h2>파일런 생성</h2>
                     <button name="close" class="modal-close-btn">
                         <i class="fa fa-times"></i>
                     </button>
                 </div>
                 <div class="modal-content">
-                    <form name="create-workspace">
+                    <form name="create-pylon">
                         <div class="form-group">
-                            <label for="roomTitle" class="form-label">제목</label>
+                            <label for="pylon_title" class="form-label">제목</label>
                             <input
                                 type="text"
-                                id="roomTitle"
+                                id="pylon_title"
                                 name="title"
                                 class="form-input"
-                                placeholder="워크스페이스 제목을 입력하세요"
+                                placeholder="제목을 입력하세요"
                                 required
                                 maxlength="50"
                             />
                         </div>
                         <div class="form-group">
-                            <label for="roomDescription" class="form-label">설명</label>
+                            <label for="pylon_description" class="form-label">설명</label>
                             <textarea
-                                id="roomDescription"
+                                id="pylon_description"
                                 name="description"
                                 class="form-textarea"
-                                placeholder="워크스페이스에 대한 간단한 설명을 입력하세요"
+                                placeholder="대한 간단한 설명을 입력하세요"
+                                required
                                 maxlength="200"
                                 rows="3"
                             ></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="roomType" class="form-label">유형</label>
-                            <select id="roomType" name="type" class="form-select">
+                            <label for="pylon_type" class="form-label">유형</label>
+                            <select id="pylon_type" name="type" class="form-select">
                                 <option value="general">일반</option>
-                                <option value="plan">기획</option>
-                                <option value="development">개발</option>
-                                <option value="operation">운영</option>
-                                <option value="deploy">배포</option>
+                                <option value="plan">작업</option>
                             </select>
                         </div>
 
                         <div class="modal-footer">
                             <button type="button" name="close" class="modal-btn modal-btn-secondary">취소</button>
-                            <button type="submit" name="create-workspace" class="modal-btn modal-btn-primary">
+                            <button type="submit" name="create-pylon" class="modal-btn modal-btn-primary">
                                 <span>생성</span>
+                                <div class="loading-spinner" style="display: none;"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="edit_pylon_modal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2>파일런 수정</h2>
+                    <button name="close" class="modal-close-btn">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-content">
+                    <form name="edit-pylon">
+                        <input type="hidden" id="edit_pylon_id" name="pylon_id" />
+                        <div class="form-group">
+                            <label for="edit_pylon_title" class="form-label">제목</label>
+                            <input
+                                type="text"
+                                id="edit_pylon_title"
+                                name="title"
+                                class="form-input"
+                                placeholder="제목을 입력하세요"
+                                required
+                                maxlength="50"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_pylon_description" class="form-label">설명</label>
+                            <textarea
+                                id="edit_pylon_description"
+                                name="description"
+                                class="form-textarea"
+                                placeholder="대한 간단한 설명을 입력하세요"
+                                required
+                                maxlength="200"
+                                rows="3"
+                            ></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit_pylon_type" class="form-label">유형</label>
+                            <select id="edit_pylon_type" name="goal" class="form-select">
+                                <option value="GENERAL">일반</option>
+                                <option value="PLAN">작업</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" name="close" class="modal-btn modal-btn-secondary">취소</button>
+                            <button type="submit" name="edit-pylon" class="modal-btn modal-btn-primary">
+                                <span>수정</span>
                                 <div class="loading-spinner" style="display: none;"></div>
                             </button>
                         </div>
@@ -124,18 +177,19 @@
 
         <!-- Main Content -->
         <div class="container">
-            <!-- Room Controls -->
+            <!-- Pylon Controls -->
             <div class="controls">
                 <div class="controls-left">
+                    <img src="/image/nexus_logo.jpg" alt="Nexus Logo" class="nexus-logo" />
                     <h2 class="controls-title">넥서스</h2>
-                    <span class="controls-total-workspace" id="roomCount">total - 0 Workspace</span>
+                    <span class="controls-total-pylon" id="total_pylon">TOTAL - 0 Pylon</span>
                 </div>
                 <div class="controls-right">
-                    <button class="btn btn-primary" id="create_workspace">
+                    <button class="btn btn-primary" id="create_pylon">
                         <i class="fa fa-plus"></i>
-                        워크스페이스 생성
+                        파일런 생성
                     </button>
-                    <button class="btn btn-secondary" id="refreshRoomsBtn">
+                    <button class="btn btn-secondary" id="refresh_nexus">
                         <i class="fa fa-sync-alt"></i>
                         새로고침
                     </button>
@@ -146,18 +200,18 @@
             <div class="search">
                 <div class="search-group">
                     <div class="search-box">
-                        <input type="text" id="searchInput" class="search-input" placeholder="검색...">
+                        <input type="text" id="search_pylon" class="search-input" placeholder="검색...">
                         <i class="fa fa-search search-icon"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- Workspace Area -->
-            <div class="workspace" id="roomGallery">
-<!--                <div class="workspace-group" data-space-id="1" onclick="joinRoom(1)">-->
-<!--                    <div class="workspace-cover">-->
+            <!-- Pylon Area -->
+            <div class="pylon" id="pylon_gallery">
+<!--                <div class="pylon-group" data-space-id="1" onclick="joinRoom(1)">-->
+<!--                    <div class="pylon-cover">-->
 <!--                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop&crop=center" alt="개발 상담">-->
-<!--                        <div class="workspace-overlay">-->
+<!--                        <div class="pylon-overlay">-->
 <!--                            <div class="unread-badge">-->
 <!--                                <i class="fa fa-comment-dots"></i>-->
 <!--                                <span>+5</span>-->
@@ -165,13 +219,13 @@
 <!--                        </div>-->
 <!--                    </div>-->
 
-<!--                    <div class="workspace-content">-->
-<!--                        <div class="workspace-header">-->
-<!--                            <h3 class="workspace-title">프로젝트 개발 상담</h3>-->
-<!--                            <span class="workspace-type development">개발</span>-->
+<!--                    <div class="pylon-content">-->
+<!--                        <div class="pylon-header">-->
+<!--                            <h3 class="pylon-title">프로젝트 개발 상담</h3>-->
+<!--                            <span class="pylon-type development">개발</span>-->
 <!--                        </div>-->
-<!--                        <p class="workspace-description">React와 Node.js 프로젝트 관련 질문과 해결책을 논의합니다</p>-->
-<!--                        <div class="workspace-stats">-->
+<!--                        <p class="pylon-description">React와 Node.js 프로젝트 관련 질문과 해결책을 논의합니다</p>-->
+<!--                        <div class="pylon-stats">-->
 <!--                            <div class="stat-item">-->
 <!--                                <i class="fa fa-user"></i>-->
 <!--                                <span>유저 7명</span>-->
@@ -188,12 +242,12 @@
 <!--                    </div>-->
 <!--                </div>-->
 
-                <div class="empty-state" id="emptyState">
+                <div class="empty-state" id="pylon_empty">
                     <div class="empty-icon">
                         <i class="fa fa-place-of-worship"></i>
                     </div>
-                    <h3>워크스페이스가 없습니다</h3>
-                    <p>새로운 워크스페이스를 만들어 에이전트와 대화를 시작해보세요.</p>
+                    <h3>파일런이 없습니다</h3>
+                    <p>새로운 파일런을 만들어 에이전트와 대화를 시작해보세요.</p>
                 </div>
             </div>
         </div>
@@ -201,80 +255,346 @@
 <!--        <script src="/js/theme-toggle.js"></script>-->
         <script src="/js/modal.js"></script>
         <script src="/js/common/api.js"></script>
+        <script src="/js/pylon-images.js"></script>
         <script>
-            const workspaceForm = document.querySelector("form[name=create-workspace]")
-            const workspaceButton = workspaceForm.querySelector('button[name=create-workspace]');
-            const workspaceButtonText = workspaceButton.querySelector("span");
-            const workspaceLoadingSpinner = workspaceButton.querySelector(".loading-spinner");
-            // window.workspaceCreateModal = new Modal(
-            //     document.querySelector("#setting_btn"),
-            //     document.querySelector("#setting_modal"),
-            //     null
-            // );
+            const pylonForm = document.querySelector("form[name=create-pylon]")
+            const pylonButton = pylonForm.querySelector('button[name=create-pylon]');
+            const pylonButtonText = pylonButton.querySelector("span");
+            const pylonLoadingSpinner = pylonButton.querySelector(".loading-spinner");
 
-            window.workspaceCreateModal = new Modal(
-                document.querySelector("#create_workspace"),
-                document.querySelector("#create_workspace_modal"),
+            const editPylonForm = document.querySelector("form[name=edit-pylon]")
+            const editPylonButton = editPylonForm.querySelector('button[name=edit-pylon]');
+            const editPylonButtonText = editPylonButton.querySelector("span");
+            const editPylonLoadingSpinner = editPylonButton.querySelector(".loading-spinner");
+
+            window.pylonCreateModal = new Modal(
+                document.querySelector("#create_pylon"),
+                document.querySelector("#create_pylon_modal"),
                 null
             );
 
-            workspaceForm.addEventListener("submit", async function(e) {
+            window.pylonEditModal = new Modal(
+                null,
+                document.querySelector("#edit_pylon_modal"),
+                null
+            );
+
+            document.addEventListener("DOMContentLoaded", async function() {
+                await getPylons();
+            })
+
+            pylonForm.addEventListener("submit", async function(e) {
                 e.preventDefault();
+                await createPylon();
+            })
 
-                // 폼 데이터 수집
-                const formData = new FormData(workspaceForm);
-                const data = Object.fromEntries(formData.entries());
+            editPylonForm.addEventListener("submit", async function(e) {
+                e.preventDefault();
+                await updatePylon();
+            })
 
-                // // owner 추가 (현재 로그인한 사용자 정보 - 추후 JWT에서 추출 가능)
-                // // 임시로 토큰이 있으면 사용자가 로그인한 것으로 간주
-                // const token = window.api.getAccessToken();
-                // if (!token) {
-                //     alert('로그인이 필요합니다.');
-                //     window.location.href = '/login';
-                //     return;
-                // }
+            // 새로고침 버튼
+            document.getElementById("refresh_nexus").addEventListener("click", function() {
+                location.reload();
+            })
 
-                isCompleted(false);
+            // 검색 기능
+            document.getElementById("search_pylon").addEventListener("input", function(e) {
+                searchPylons(e.target.value);
+            })
 
+            async function getPylons() {
                 try {
-                    const response = await window.api.post('/api/v1/nexus/workspace', data);
+                    const response = await window.api.get('/api/v1/nexus/pylons');
                     console.log("response: ", response);
 
                     if (response && response.ok) {
                         const result = await response.json();
 
-                        // 워크스페이스 생성 성공
-                        console.log('Workspace created successfully:', result);
+                        // 파일런 조회 성공
+                        console.log('Pylon 조회 성공:', result);
 
-                        // 모달 닫기
-                        window.workspaceCreateModal.close();
+                        const pylonContainer = document.getElementById('pylon_gallery');
+                        const pylonEmpty = document.getElementById('pylon_empty');
+                        const totalPylon = document.getElementById('total_pylon');
 
-                        // 폼 초기화
-                        workspaceForm.reset();
+                        if (result.pylons && result.pylons.length > 0) {
+                            // 빈 상태 숨기기
+                            pylonEmpty.style.display = 'none';
 
-                        // 워크스페이스 목록 새로고침 (추후 구현 예정)
-                        // refreshWorkspaces();
+                            // 파일런 개수 업데이트
+                            totalPylon.textContent = `total - ${result.pylons.length} Pylon`;
 
-                        alert('워크스페이스가 생성되었습니다.');
+                            // 파일런 카드 생성
+                            result.pylons.forEach(pylon => {
+                                const pylonCard = createPylonCard(pylon);
+                                pylonContainer.insertBefore(pylonCard, pylonEmpty);
+                            });
+                        } else {
+                            // 파일런이 없으면 빈 상태 표시
+                            pylonEmpty.style.display = 'block';
+                            totalPylon.textContent = 'total - 0 Pylon';
+                        }
                     } else if (response) {
                         const error = await response.json();
-                        alert(error.detail || '워크스페이스 생성에 실패했습니다.');
+                        alert(error.detail || '파일런 조회에 실패했습니다.');
                     }
                 } catch (error) {
-                    console.error('Workspace creation error:', error);
+                    console.error('Pylon creation error:', error);
+                    alert('Pylon을 조회할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                }
+            }
+
+            function createPylonCard(pylon) {
+                const pylonGroup = document.createElement('div');
+                pylonGroup.className = 'pylon-group';
+                pylonGroup.setAttribute('data-space-id', pylon.id);
+                pylonGroup.onclick = () => joinPylon(pylon.id);
+
+                // 타입에 따른 클래스 설정
+                const typeClass = pylon.goal.toLowerCase();
+                const typeText = pylon.goal === 'PLAN' ? '작업' : '일반';
+
+                // 날짜 포맷팅
+                const createdDate = new Date(pylon.created_at).toISOString().split('T')[0];
+
+                pylonGroup.innerHTML = `
+                    <div class="pylon-cover">
+                        <img src="${pylon.image_url || getRandomPylonImage()}" alt="${pylon.title}">
+                        <div class="pylon-overlay">
+                            <div class="pylon-actions">
+                                <button class="pylon-action-btn edit-btn" onclick="event.stopPropagation(); openEditModal(${pylon.id})" title="수정">
+                                    <i class="fa fa-cog"></i>
+                                </button>
+                                <button class="pylon-action-btn delete-btn" onclick="event.stopPropagation(); deletePylon(${pylon.id})" title="삭제">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                            <div class="unread-badge" style="display: none;">
+                                <i class="fa fa-comment-dots"></i>
+                                <span>+0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pylon-content">
+                        <div class="pylon-header">
+                            <h3 class="pylon-title">${pylon.title}</h3>
+                            <span class="pylon-type ${typeClass}">${typeText}</span>
+                        </div>
+                        <p class="pylon-description">${pylon.description}</p>
+                        <div class="pylon-stats">
+                            <div class="stat-item">
+                                <i class="fa fa-user"></i>
+                                <span>유저 ${pylon.user_count}명</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fa fa-layer-group"></i>
+                                <span>에이전트 ${pylon.agent_count}명</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fa fa-clock"></i>
+                                <span>${createdDate}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                return pylonGroup;
+            }
+
+            function joinPylon(pylonId) {
+                console.log('Joining pylon:', pylonId);
+                // 파일런 페이지로 이동
+                window.location.href = `/pylon?id=${pylonId}`;
+            }
+
+            async function createPylon() {
+                // 폼 데이터 수집
+                const formData = new FormData(pylonForm);
+                const data = Object.fromEntries(formData.entries());
+
+                // 랜덤 이미지 URL 추가
+                data.image_url = getRandomPylonImage();
+
+                isCompleted(false);
+
+                try {
+                    const response = await window.api.post('/api/v1/nexus/pylon', data);
+                    console.log("response: ", response);
+
+                    if (response && response.ok) {
+                        const result = await response.json();
+
+                        // 파일런 생성 성공
+                        console.log('Pylon created successfully:', result);
+
+                        // 모달 닫기
+                        window.pylonCreateModal.close();
+
+                        // 폼 초기화
+                        pylonForm.reset();
+
+                        // 페이지 새로고침
+                        location.reload();
+
+                        alert('파일런이 생성되었습니다.');
+                    } else if (response) {
+                        const error = await response.json();
+                        alert(error.detail || '파일런 생성에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('Pylon creation error:', error);
                     alert('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
                 } finally {
-                    // 버튼 상태 복원
-                    submitButton.disabled = false;
-                    submitButtonText.style.display = 'inline';
-                    loadingSpinner.style.display = 'none';
+                    isCompleted(true);
                 }
-            })
+            }
 
             function isCompleted(flag) {
-                workspaceButton.disabled = !flag;
-                workspaceButtonText.textContent = !flag ? "로그인 중..." : "로그인";
-                workspaceLoadingSpinner.style.display = !flag ? "inline-block" : "none";
+                pylonButton.disabled = !flag;
+                pylonButtonText.textContent = !flag ? "로그인 중..." : "로그인";
+                pylonLoadingSpinner.style.display = !flag ? "inline-block" : "none";
+            }
+
+            function isEditCompleted(flag) {
+                editPylonButton.disabled = !flag;
+                editPylonButtonText.textContent = !flag ? "수정 중..." : "수정";
+                editPylonLoadingSpinner.style.display = !flag ? "inline-block" : "none";
+            }
+
+            async function openEditModal(pylonId) {
+                try {
+                    const response = await window.api.get(`/api/v1/nexus/pylon/${pylonId}`);
+
+                    if (response && response.ok) {
+                        const result = await response.json();
+                        const pylon = result.pylon;
+
+                        // 폼에 데이터 채우기
+                        document.getElementById('edit_pylon_id').value = pylon.id;
+                        document.getElementById('edit_pylon_title').value = pylon.title;
+                        document.getElementById('edit_pylon_description').value = pylon.description;
+                        document.getElementById('edit_pylon_type').value = pylon.goal;
+
+                        // 모달 열기
+                        window.pylonEditModal.open();
+                    } else if (response) {
+                        const error = await response.json();
+                        alert(error.detail || '파일런 정보를 불러올 수 없습니다.');
+                    }
+                } catch (error) {
+                    console.error('Failed to load pylon:', error);
+                    alert('파일런 정보를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.');
+                }
+            }
+
+            async function updatePylon() {
+                const pylonId = document.getElementById('edit_pylon_id').value;
+                const formData = new FormData(editPylonForm);
+                const data = Object.fromEntries(formData.entries());
+
+                isEditCompleted(false);
+
+                try {
+                    const response = await window.api.put(`/api/v1/nexus/pylon/${pylonId}`, data);
+                    console.log("response: ", response);
+
+                    if (response && response.ok) {
+                        const result = await response.json();
+
+                        // 파일런 수정 성공
+                        console.log('Pylon updated successfully:', result);
+
+                        // 모달 닫기
+                        window.pylonEditModal.close();
+
+                        // 폼 초기화
+                        editPylonForm.reset();
+
+                        // 페이지 새로고침
+                        location.reload();
+
+                        alert('파일런이 수정되었습니다.');
+                    } else if (response) {
+                        const error = await response.json();
+                        alert(error.detail || '파일런 수정에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('Pylon update error:', error);
+                    alert('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                } finally {
+                    isEditCompleted(true);
+                }
+            }
+
+            async function deletePylon(pylonId) {
+                if (!confirm('정말로 이 파일런을 삭제하시겠습니까?')) {
+                    return;
+                }
+
+                try {
+                    const response = await window.api.delete(`/api/v1/nexus/pylon/${pylonId}`);
+                    console.log("response: ", response);
+
+                    if (response && response.ok) {
+                        const result = await response.json();
+
+                        // 파일런 삭제 성공
+                        console.log('Pylon deleted successfully:', result);
+
+                        // 페이지 새로고침
+                        location.reload();
+
+                        alert('파일런이 삭제되었습니다.');
+                    } else if (response) {
+                        const error = await response.json();
+                        alert(error.detail || '파일런 삭제에 실패했습니다.');
+                    }
+                } catch (error) {
+                    console.error('Pylon delete error:', error);
+                    alert('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                }
+            }
+
+            function searchPylons(keyword) {
+                const pylonGroups = document.querySelectorAll('.pylon-group');
+                const pylonEmpty = document.getElementById('pylon_empty');
+                const searchKeyword = keyword.toLowerCase().trim();
+                let visibleCount = 0;
+
+                pylonGroups.forEach(group => {
+                    const title = group.querySelector('.pylon-title')?.textContent.toLowerCase() || '';
+                    const description = group.querySelector('.pylon-description')?.textContent.toLowerCase() || '';
+
+                    if (searchKeyword === '' || title.includes(searchKeyword) || description.includes(searchKeyword)) {
+                        group.style.display = '';
+                        visibleCount++;
+                    } else {
+                        group.style.display = 'none';
+                    }
+                });
+
+                // 검색 결과가 없을 때 빈 상태 표시
+                if (visibleCount === 0 && searchKeyword !== '') {
+                    pylonEmpty.style.display = 'block';
+                    pylonEmpty.querySelector('h3').textContent = '검색 결과가 없습니다';
+                    pylonEmpty.querySelector('p').textContent = `"${keyword}"에 대한 검색 결과를 찾을 수 없습니다.`;
+                } else if (visibleCount === 0 && searchKeyword === '') {
+                    pylonEmpty.style.display = 'block';
+                    pylonEmpty.querySelector('h3').textContent = '파일런이 없습니다';
+                    pylonEmpty.querySelector('p').textContent = '새로운 파일런을 만들어 에이전트와 대화를 시작해보세요.';
+                } else {
+                    pylonEmpty.style.display = 'none';
+                }
+
+                // 카운트 업데이트
+                const totalPylon = document.getElementById('total_pylon');
+                if (searchKeyword === '') {
+                    totalPylon.textContent = `TOTAL - ${pylonGroups.length} Pylon`;
+                } else {
+                    totalPylon.textContent = `검색 결과 - ${visibleCount} Pylon`;
+                }
             }
         </script>
     </body>

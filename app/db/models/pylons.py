@@ -2,8 +2,8 @@ from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.sql import func
 from app.db.base import Base
 
-class Workspaces(Base):
-    __tablename__ = "workspaces"
+class Pylons(Base):
+    __tablename__ = "pylons"
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(100), nullable=False)
     description = Column(String(255), nullable=False)
