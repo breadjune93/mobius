@@ -412,3 +412,39 @@ body {
     border: 1px solid var(--light-600);
 }
 
+/* Title Section Styles */
+.title-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+}
+
+.title-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.title-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.nexus-logo {
+    width: 40px;
+    height: 40px;
+}
+
+.title-header {
+    margin: 0;
+    font-weight: 600;
+}
+
+.title-right {
+    display: flex;
+    gap: 12px;
+}
+
