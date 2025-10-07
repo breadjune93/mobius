@@ -99,30 +99,22 @@
             const formData = new FormData(loginForm);
             const data = Object.fromEntries(formData.entries());
 
-            // Show loading state
             isCompleted(false)
 
             try {
-                const response = await window.api.post('/api/v1/auth/login', data, false);
-
-                if (response && response.ok) {
-                    const result = await response.json();
-
-                    // access_token을 localStorage에 저장
-                    window.api.setAccessToken(result.access_token);
-
-                    // 로그인 성공 후 홈페이지로 리다이렉트
-                    window.location.href = '/nexus';
-                } else if (response) {
-                    const error = await response.json();
-                    showError(error.detail || '계정이 일치하지 않습니다.');
+                const response = await window.api.post('/api/v1/auth/login', data);
+                const body = await response.body;
+                if (response.status) {
+                    window.api.setToken(body['access_token']);
+                    location.href = "/nexus";
+                } else {
+                    showError(body.detail || '계정이 일치하지 않습니다.');
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                showError('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                console.log(error);
+                showError(error.detail || '서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
             } finally {
                 isCompleted(true)
-
             }
         });
 

@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>에이전트 Alpha</title>
+    <title>Pylon</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/css/root.css">
     <link rel="stylesheet" href="/css/chat.css">
+    <link rel="stylesheet" href="/css/form.css">
+    <link rel="stylesheet" href="/css/fragments/modal.css">
 </head>
 <body>
         <header class="header">
@@ -21,45 +23,78 @@
                 <button class="header-btn settings-btn" id="setting_btn" title="설정">
                     <i class="fa fa-cog"></i>
                 </button>
-                <button class="header-btn menu-btn" onclick="toggleSidebar()" title="메뉴">
-                    <i class="fa fa-bars"></i>
-                </button>
+<!--                <button class="header-btn menu-btn" onclick="toggleSidebar()" title="메뉴">-->
+<!--                    <i class="fa fa-bars"></i>-->
+<!--                </button>-->
             </div>
         </header>
 
     <!-- Sidebar -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2>에이전트</h2>
-            <button class="close-btn" onclick="closeSidebar()" title="닫기">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-        </div>
-        
-        <div class="sidebar-content">
-            <!-- New Agent Button -->
-            <button class="new-chat-btn" onclick="createNewChat()" title="New 에이전트">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                New 에이전트
-            </button>
-            
-            <!-- Agent List -->
-            <div class="chat-history">
-                <h3>적용된 에이전트</h3>
-                <div class="chat-list" id="chatList">
-                    <!-- Agent items will be added here dynamically -->
-                    <div class="chat-item active" onclick="selectChat(this)">
-                        <div class="chat-title">현재 에이전트</div>
-                        <div class="chat-preview">현재 적용된 에이전트...</div>
+<!--    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>-->
+<!--    <div class="sidebar" id="sidebar">-->
+<!--        <div class="sidebar-header">-->
+<!--            <h2>에이전트</h2>-->
+<!--            <button class="close-btn" onclick="closeSidebar()" title="닫기">-->
+<!--                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--                    <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                    <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                </svg>-->
+<!--            </button>-->
+<!--        </div>-->
+<!--        -->
+<!--        <div class="sidebar-content">-->
+<!--            &lt;!&ndash; New Agent Button &ndash;&gt;-->
+<!--            <button class="new-chat-btn" onclick="createNewChat()" title="New 에이전트">-->
+<!--                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--                    <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                    <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                </svg>-->
+<!--                New 에이전트-->
+<!--            </button>-->
+<!--            -->
+<!--            &lt;!&ndash; Agent List &ndash;&gt;-->
+<!--            <div class="chat-history">-->
+<!--                <h3>적용된 에이전트</h3>-->
+<!--                <div class="chat-list" id="chatList">-->
+<!--                    &lt;!&ndash; Agent items will be added here dynamically &ndash;&gt;-->
+<!--                    <div class="chat-item active" onclick="selectChat(this)">-->
+<!--                        <div class="chat-title">현재 에이전트</div>-->
+<!--                        <div class="chat-preview">현재 적용된 에이전트...</div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+    <!-- Add Agent Modal -->
+    <div class="modal-overlay" id="add_agent_modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>에이전트 추가</h2>
+                <button name="close" class="modal-close-btn">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form name="add-agent">
+                    <div class="form-group">
+                        <label for="agent_name" class="form-label">에이전트 이름</label>
+                        <input
+                            type="text"
+                            id="agent_name"
+                            name="name"
+                            class="form-input"
+                            placeholder="에이전트 이름을 입력하세요"
+                            required
+                        />
                     </div>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" name="close" class="modal-btn modal-btn-secondary">취소</button>
+                        <button type="submit" name="add-agent" class="modal-btn modal-btn-primary">
+                            <span>추가</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -156,15 +191,30 @@
                 </div>
                 <span class="title-total-pylon" id="pylonDesc">TOTAL - 0 agents</span>
             </div>
+            <div class="title-right">
+                <button class="btn btn-primary" id="add_agent">
+                    <i class="fa fa-plus"></i>
+                    에이전트 추가
+                </button>
+            </div>
         </div>
+
     </div>
 
-    <div class="chat-container scroll"></div>
+    <div class="chat-container scroll">
+        <div class="empty-state" id="agent_empty">
+            <div class="empty-icon">
+                <i class="fa fa-robot"></i>
+            </div>
+            <h3>에이전트가 없습니다</h3>
+            <p>에이전트를 추가해 대화를 시작해보세요.</p>
+        </div>
+    </div>
 
     <div class="input-container">
         <div class="input-wrapper">
             <label>
-                <textarea class="message-input scroll" placeholder="메시지를 입력하세요" rows="1"></textarea>
+                <textarea name="prompt-textarea" class="form-textarea scroll" placeholder="메시지를 입력하세요" rows="1"></textarea>
             </label>
             <button class="send-button">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -174,16 +224,16 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
-    <script type="application/javascript" src="/js/api-helper.js"></script>
-    <script type="application/javascript" src="/js/common/theme-toggle.js"></script>
-    <script type="application/javascript" src="/js/settings-modal.js"></script>
-    <script type="application/javascript" src="/js/markdown.js"></script>
-    <script type="application/javascript" src="/js/messageBox.js"></script>
-    <script type="application/javascript" src="/js/common/util.js"></script>
-    <script type="application/javascript" src="/js/chat.js"></script>
-    <script type="application/javascript" src="/js/common/api.js"></script>
-    <script>
+        <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
+<!--        <script type="application/javascript" src="/js/common/theme-toggle.js"></script>-->
+        <script type="application/javascript" src="/js/common/api.js"></script>
+        <script type="application/javascript" src="/js/common/util.js"></script>
+<!--        <script type="application/javascript" src="/js/settings-modal.js"></script>-->
+        <script type="application/javascript" src="/js/markdown.js"></script>
+        <script type="application/javascript" src="/js/messageBox.js"></script>
+        <script type="application/javascript" src="/js/chat.js"></script>
+        <script type="application/javascript" src="/js/modal.js"></script>
+        <script>
         // URL에서 pylon ID 가져오기
         const urlParams = new URLSearchParams(window.location.search);
         const pylonId = urlParams.get('id');
@@ -237,6 +287,13 @@
                 window.location.href = '/nexus';
             }
         });
+
+        // 에이전트 추가 모달 초기화
+        window.addAgentModal = new Modal(
+            document.querySelector("#add_agent"),
+            document.querySelector("#add_agent_modal"),
+            null
+        );
     </script>
 </body>
 </html>

@@ -18,8 +18,8 @@ from web.routes.route import router as web_router
 
 # API 라우터(v1, JSON)
 from api.v1.routers.auth_router import router as auth_router
+from api.v1.routers.nexus_router import router as nexus_router
 from api.v1.routers.pylon_router import router as pylon_router
-# from api.v1.routers.main_router import router as main_router
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -70,8 +70,8 @@ def create_app() -> FastAPI:
 
     # API (JSON, /api/v1/*)
     app.include_router(auth_router, prefix="", tags=["auth"])
+    app.include_router(nexus_router, prefix="", tags=["nexus"])
     app.include_router(pylon_router, prefix="", tags=["pylon"])
-    # app.include_router(main_router, prefix="", tags=["chat"])
 
     return app
 

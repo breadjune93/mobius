@@ -16,7 +16,6 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenPair)
 def login(payload: LoginRequest, response: Response, db: Session = Depends(get_db)):
-    print(f"payload: {payload}")
     data = service.login(db, payload.user_id, payload.password)
 
     # refresh_token을 httpOnly 쿠키로 설정

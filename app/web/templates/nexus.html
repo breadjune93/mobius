@@ -308,27 +308,24 @@
             async function getPylons() {
                 try {
                     const response = await window.api.get('/api/v1/nexus/pylons');
-                    console.log("response: ", response);
+                    const body = await response.body;
 
-                    if (response && response.ok) {
-                        const result = await response.json();
-
-                        // 파일런 조회 성공
-                        console.log('Pylon 조회 성공:', result);
+                    if (response.status) {
+                        const pylons = await body['pylons'];
 
                         const pylonContainer = document.getElementById('pylon_gallery');
                         const pylonEmpty = document.getElementById('pylon_empty');
                         const totalPylon = document.getElementById('total_pylon');
 
-                        if (result.pylons && result.pylons.length > 0) {
+                        if (pylons && pylons.length > 0) {
                             // 빈 상태 숨기기
                             pylonEmpty.style.display = 'none';
 
                             // 파일런 개수 업데이트
-                            totalPylon.textContent = `total - ${result.pylons.length} Pylon`;
+                            totalPylon.textContent = `total - ${pylons.length} Pylon`;
 
                             // 파일런 카드 생성
-                            result.pylons.forEach(pylon => {
+                            pylons.forEach(pylon => {
                                 const pylonCard = createPylonCard(pylon);
                                 pylonContainer.insertBefore(pylonCard, pylonEmpty);
                             });
@@ -337,13 +334,11 @@
                             pylonEmpty.style.display = 'block';
                             totalPylon.textContent = 'total - 0 Pylon';
                         }
-                    } else if (response) {
-                        const error = await response.json();
-                        alert(error.detail || '파일런 조회에 실패했습니다.');
+                    } else {
+                        alert(body.detail || '파일런 조회에 실패했습니다.');
                     }
                 } catch (error) {
-                    console.error('Pylon creation error:', error);
-                    alert('Pylon을 조회할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                    alert(error.detail || 'Pylon을 조회할 수 없습니다. 잠시 후 다시 시도해주세요.');
                 }
             }
 
@@ -371,10 +366,6 @@
                                 <button class="pylon-action-btn delete-btn" onclick="event.stopPropagation(); deletePylon(${pylon.id})" title="삭제">
                                     <i class="fa fa-trash"></i>
                                 </button>
-                            </div>
-                            <div class="unread-badge" style="display: none;">
-                                <i class="fa fa-comment-dots"></i>
-                                <span>+0</span>
                             </div>
                         </div>
                     </div>
@@ -406,8 +397,6 @@
             }
 
             function joinPylon(pylonId) {
-                console.log('Joining pylon:', pylonId);
-                // 파일런 페이지로 이동
                 window.location.href = `/pylon?id=${pylonId}`;
             }
 
@@ -427,9 +416,7 @@
 
                     if (response && response.ok) {
                         const result = await response.json();
-
-                        // 파일런 생성 성공
-                        console.log('Pylon created successfully:', result);
+                        console.log('파일런 생성 완료:', result);
 
                         // 모달 닫기
                         window.pylonCreateModal.close();

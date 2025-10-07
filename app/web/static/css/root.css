@@ -23,6 +23,7 @@
     --brand-base: #6d5de8;    /* 원본 메인 컬러 */
     --brand-deep: #5b4dd6;    /* 서브 메인 컬러 */
     --brand-dark: #4639b2;    /* 더 짙고 안정적인 포인트 */
+    --brand-shadow: #5B4DD626;
 
     /* Success (성공/긍정) */
     --success-base: #22C55E;  /* 기본 성공 색상 */
@@ -42,28 +43,9 @@
     --info-base: #17a2b8;     /* 기본 정보 */
     --info-deep: #0E5966;     /* 더 짙은 정보 */
 
-    /*--soft-primary: #6d5de8;*/
-    /*--default-primary: #5b4dd6;*/
-    /*--default-secondary: #6c757d;*/
-    /*--default-success: #22C55E;*/
-    /*--default-danger: #EF4444;*/
-    /*--default-warning: #F59E0B;*/
-    /*--default-info: #17a2b8;*/
-    /*--default-dark: #2B2C2F;*/
-    /*--default-light: #f8f9fa;*/
-
-    /* 기존보다 약 25% 어둡게 */
-    /*--deep-primary: #4c3fbb;*/
-    /*--deep-secondary: #495057;*/
-    /*--deep-success: #15803D;*/
-    /*--deep-danger: #B91C1C;*/
-    /*--deep-warning: #B45309;*/
-    /*--deep-info: #0E5966;*/
-    /*--deep-dark: #1a1b1e;*/
-    /*--deep-light: #9CA3AF; !* 밝은 색은 살짝 어둡게 *!*/
-
     --dim: rgba(0, 0, 0, 0.6);
     --shadow: rgba(0, 0, 0, 0.4);
+
 }
 
 * {

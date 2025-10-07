@@ -1,145 +1,45 @@
-const messageInput = document.querySelector('.message-input');
+const formTextarea = document.querySelector('.form-textarea');
 const sendButton = document.querySelector('.send-button');
 const chatContainer = document.querySelector('.chat-container');
 
 // 검색창 오토 리사이징
-messageInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    const newHeight = Math.min(this.scrollHeight, 500);
-    this.style.height = newHeight + 'px';
+formTextarea.addEventListener('input', function() {
+    const style = window.getComputedStyle(this);
+    const maxHeight = parseFloat(style.maxHeight);
+    const scrollHeight = this.scrollHeight;
 
-    // Show scroll only when content exceeds max-height
-    if (this.scrollHeight > 500) {
-        this.style.overflowY = 'auto';
-    } else {
-        this.style.overflowY = 'hidden';
-    }
+    this.style.height = 'auto';
+    this.style.height = `${Math.min(scrollHeight, 500)}px`;
+
+    (scrollHeight > maxHeight) ? this.classList.add('on-scroll') : this.classList.remove('on-scroll');
 });
+
 
 // Enter 검색
-messageInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendStreamMessage();
-    }
-});
+formTextarea.addEventListener('keydown', (e) => keydownSendStreamMessage(e));
 
 // 검색
 sendButton.addEventListener('click', sendStreamMessage);
 
 
-// 로딩 점 애니메이션을 위한 함수
-function messageLoading(contentBox) {
-    let dotCount = 0;
-    return setInterval(() => {
-        dotCount = (dotCount % 3) + 1;
-        contentBox.textContent = '.'.repeat(dotCount);
-    }, 500);
-}
-
-// Sidebar functionality
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    
-    sidebar.classList.toggle('active');
-    overlay.classList.toggle('active');
-}
-
-function closeSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
-}
-
-function createNewChat() {
-    // Clear current chat
-    chatContainer.innerHTML = '';
-    
-    // Add new chat to history
-    const chatList = document.getElementById('chatList');
-    
-    // Remove active class from all items
-    chatList.querySelectorAll('.chat-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    // Create new chat item
-    const newChatItem = document.createElement('div');
-    newChatItem.className = 'chat-item active';
-    newChatItem.onclick = function() { selectChat(this); };
-    
-    const chatTitle = new Date().toLocaleString('ko-KR', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    
-    newChatItem.innerHTML = `
-        <div class="chat-title">새 채팅 - ${chatTitle}</div>
-        <div class="chat-preview">새로운 대화를 시작하세요...</div>
-    `;
-    
-    // Add to top of chat list
-    chatList.insertBefore(newChatItem, chatList.firstChild);
-    
-    // Close sidebar
-    closeSidebar();
-    
-    // Focus message input
-    messageInput.focus();
-}
-
-function selectChat(chatItem) {
-    // Remove active class from all items
-    document.querySelectorAll('.chat-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    // Add active class to selected item
-    chatItem.classList.add('active');
-    
-    // Here you would load the chat history for the selected chat
-    // For now, just close the sidebar
-    closeSidebar();
-}
-
-// Close sidebar when clicking outside
-document.addEventListener('click', function(event) {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    const menuBtn = document.querySelector('.menu-btn');
-    
-    if (sidebar.classList.contains('active') && 
-        !sidebar.contains(event.target) && 
-        !menuBtn.contains(event.target)) {
-        closeSidebar();
+async function keydownSendStreamMessage(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        await sendStreamMessage();
     }
-});
-
-// Close sidebar on escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeSidebar();
-    }
-});
+}
 
 async function sendStreamMessage() {
-    const message = messageInput.value.trim();
+    const message = formTextarea.value.trim();
     if (message) {
         console.log('Sending message:', message);
 
         // 입력창 초기화
-        messageInput.value = '';
-        messageInput.style.height = 'auto';
-        messageInput.style.overflowY = 'hidden';
+        formTextarea.value = '';
 
         // 사용자 메시지를 채팅에 추가
         createUserMessage(message);
-        
+
         // Update current chat preview in sidebar
         const activeChat = document.querySelector('.chat-item.active');
         if (activeChat) {
@@ -156,14 +56,9 @@ async function sendStreamMessage() {
         let currentToolMessage = null;
 
         try {
-            const response = await window.apiHelper.fetchWithAuth('/api/v1/chat/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'text/event-stream',
-                },
-                body: JSON.stringify({message: message})
-            });
+            const response = await window.api.stream('/api/v1/pylon/streams', { message: message });
+
+            console.log(`chat response: ${response}`);
 
             if (!response.ok) {
                 clearInterval(loadingInterval);
@@ -251,3 +146,103 @@ async function sendStreamMessage() {
         }
     }
 }
+
+// 로딩 점 애니메이션을 위한 함수
+function messageLoading(contentBox) {
+    let dotCount = 0;
+    return setInterval(() => {
+        dotCount = (dotCount % 3) + 1;
+        contentBox.textContent = '.'.repeat(dotCount);
+    }, 500);
+}
+
+// Sidebar functionality
+// function toggleSidebar() {
+//     const sidebar = document.getElementById('sidebar');
+//     const overlay = document.getElementById('sidebarOverlay');
+//
+//     sidebar.classList.toggle('active');
+//     overlay.classList.toggle('active');
+// }
+
+// function closeSidebar() {
+//     const sidebar = document.getElementById('sidebar');
+//     const overlay = document.getElementById('sidebarOverlay');
+//
+//     sidebar.classList.remove('active');
+//     overlay.classList.remove('active');
+// }
+
+// function createNewChat() {
+//     // Clear current chat
+//     chatContainer.innerHTML = '';
+//
+//     // Add new chat to history
+//     const chatList = document.getElementById('chatList');
+//
+//     // Remove active class from all items
+//     chatList.querySelectorAll('.chat-item').forEach(item => {
+//         item.classList.remove('active');
+//     });
+//
+//     // Create new chat item
+//     const newChatItem = document.createElement('div');
+//     newChatItem.className = 'chat-item active';
+//     newChatItem.onclick = function() { selectChat(this); };
+//
+//     const chatTitle = new Date().toLocaleString('ko-KR', {
+//         month: 'short',
+//         day: 'numeric',
+//         hour: '2-digit',
+//         minute: '2-digit'
+//     });
+//
+//     newChatItem.innerHTML = `
+//         <div class="chat-title">새 채팅 - ${chatTitle}</div>
+//         <div class="chat-preview">새로운 대화를 시작하세요...</div>
+//     `;
+//
+//     // Add to top of chat list
+//     chatList.insertBefore(newChatItem, chatList.firstChild);
+//
+//     // Close sidebar
+//     closeSidebar();
+//
+//     // Focus message input
+//     formTextarea.focus();
+// }
+
+// function selectChat(chatItem) {
+//     // Remove active class from all items
+//     document.querySelectorAll('.chat-item').forEach(item => {
+//         item.classList.remove('active');
+//     });
+//
+//     // Add active class to selected item
+//     chatItem.classList.add('active');
+//
+//     // Here you would load the chat history for the selected chat
+//     // For now, just close the sidebar
+//     closeSidebar();
+// }
+
+// Close sidebar when clicking outside
+// document.addEventListener('click', function(event) {
+//     const sidebar = document.getElementById('sidebar');
+//     const overlay = document.getElementById('sidebarOverlay');
+//     const menuBtn = document.querySelector('.menu-btn');
+//
+//     if (sidebar.classList.contains('active') &&
+//         !sidebar.contains(event.target) &&
+//         !menuBtn.contains(event.target)) {
+//         closeSidebar();
+//     }
+// });
+
+// Close sidebar on escape key
+// document.addEventListener('keydown', function(event) {
+//     if (event.key === 'Escape') {
+//         closeSidebar();
+//     }
+// });
+

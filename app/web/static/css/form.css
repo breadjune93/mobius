@@ -78,7 +78,7 @@
 
 .form-input:focus {
     border-color: var(--brand-base);
-    box-shadow: 0 0 0 3px rgba(91, 77, 214, 0.15);
+    box-shadow: 0 0 0 3px var(--brand-shadow);
 }
 
 .form-input::placeholder {

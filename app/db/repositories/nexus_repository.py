@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.db.models.pylons import Pylons
 
-class PylonRepository:
+class NexusRepository:
     def get_pylons(self, db: Session, user_id: str) -> list[type[Pylons]]:
         return (
             db.query(Pylons)
