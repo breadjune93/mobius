@@ -1,4 +1,4 @@
-from claude_code_sdk import *
+from claude_agent_sdk import *
 
 import asyncio
 import ai.tools.models.blocks as blocks
@@ -20,10 +20,13 @@ class Anthropic:
         self._initialize(system_prompt)
 
     def _initialize(self, system_prompt):
-        self.client = ClaudeSDKClient(options=ClaudeCodeOptions(
-            system_prompt=system_prompt,
-            max_turns=5
-        ))
+        self.client = ClaudeSDKClient(
+            options=ClaudeAgentOptions(
+                model="claude-sonnet-4-5",
+                system_prompt=system_prompt,
+                max_turns=5
+            )
+        )
 
     async def chat(self, message):
         async with self.client as client:
