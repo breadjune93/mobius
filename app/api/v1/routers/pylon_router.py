@@ -2,20 +2,24 @@ import sys
 import os
 import json
 import datetime
+import traceback
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
+
+from ai.system_prompt import FULLSTACK_DEVELOPER
+from ai.tools.claude_agent import stream_claude
 from app.core.deps import get_db, get_current_subject
 from app.api.v1.schemas.pylon_schema import *
 from app.api.v1.services.pylon_service import PylonService
 from app.db.repositories.agent_repository import AgentRepository
 from app.db.repositories.session_repository import SessionRepository
 from app.db.repositories.chat_repository import ChatRepository
-from agent.tool_agents import ToolAgents
+from typing import AsyncGenerator
+
 
 router = APIRouter(prefix="/api/v1/pylon", tags=["pylon"])
-tool_agents = ToolAgents()
 
 # Service 초기화
 service = PylonService(
@@ -23,7 +27,6 @@ service = PylonService(
     SessionRepository(),
     ChatRepository()
 )
-
 
 # ============================================
 # Session Endpoints
@@ -112,24 +115,33 @@ def get_chats(
 # ============================================
 # Streaming Chat Endpoint
 # ============================================
-@router.post("/streams")
-async def chat_stream(request: ChatRequest):
-    """스트리밍 채팅"""
-    async def generate():
-        try:
-            async for chunk in tool_agents.chat(request.message):
-                yield f"data: {json.dumps(chunk, ensure_ascii=False)}\\n\\n"
+@router.post("/stream/claude")
+async def chat_stream(request: Request, payload: ChatRequest):
+    print("chat_stream 호출")
 
+    async def event_generator() -> AsyncGenerator[str, None]:
+        try:
+            async for chunk in stream_claude(
+                system_prompt=FULLSTACK_DEVELOPER,
+                prompt=payload.message
+            ):
+                if await request.is_disconnected():
+                    break
+
+                yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
         except Exception as e:
-            error_data = json.dumps({"error": str(e), "done": True}, ensure_ascii=False)
-            yield f"data: {error_data}\\n\\n"
+            error_msg = f"{type(e).__name__}: {str(e)}"
+            traceback_str = traceback.format_exc()
+            error_data = json.dumps({"error": error_msg, "traceback": traceback_str, "done": True}, ensure_ascii=False)
+            yield f"data: {error_data}\n\n"
 
     return StreamingResponse(
-        generate(),
+        event_generator(),
         media_type="text/event-stream",
         headers={
-            "Cache-Control": "no-cache",
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
             "Connection": "keep-alive",
-            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "text/event-stream; charset=utf-8"
         }
     )

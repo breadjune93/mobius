@@ -20,7 +20,7 @@ def login(payload: LoginRequest, response: Response, db: Session = Depends(get_d
 
     # refresh_token을 httpOnly 쿠키로 설정
     response.set_cookie(
-        key="refresh_token",
+        key="mb_an_tk",
         value=data["refresh_token"],
         httponly=True,
         secure=True,  # HTTPS에서만 전송

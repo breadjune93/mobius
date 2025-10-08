@@ -4,35 +4,36 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from typing import Callable, Any
 from sqlalchemy.orm import Session
-from app.core.security import decode_token, verify_access_token
+from app.core.security import decode_token, verify_access_token, verify_refresh_token
 from app.db.base import SessionLocal
 from app.db.models.user import User
 
+def _is_authorization(header: str) -> bool:
+    if not header or not header.startswith("Bearer "):
+        return False
 
-def _verify_refresh_token(token: str, db: Session) -> Any | None:
-    """Refresh token 검증 (DB 저장된 토큰과 비교)"""
+    access_token = header.split(" ")[1]
+    if not verify_access_token(access_token):
+        return False
+
+    return True
+
+def _verify_refresh_token(token: str) -> bool:
+    db = SessionLocal()
+    if not verify_refresh_token(token):
+        return False
+
     try:
         payload = decode_token(token)
-
-        if payload.get("typ") != "refresh":
-            return None
-
-        user_id = payload.get("sub")
-        user = db.query(User).filter(User.id == user_id).first()
-
+        user = db.query(User).filter(User.id == payload.get("sub")).first()
         if not user or user.refresh_token != token or not user.is_active:
-            return None
+            return False
+    finally:
+        db.close()
 
-        return user_id
-    except Exception as e:
-        print(f"refresh token exception: {e}")
-        return None
+    return True
 
 class AuthMiddleware(BaseHTTPMiddleware):
-    """
-    JWT 토큰 기반 인증 미들웨어
-    Authorization 헤더의 Bearer 토큰과 쿠키의 refresh_token을 검증
-    """
 
     def __init__(self, app, protected_paths: list = None, public_paths: list = None):
         super().__init__(app)
@@ -50,42 +51,35 @@ class AuthMiddleware(BaseHTTPMiddleware):
         # API 경로와 일반 웹 경로 구분
         is_api_path = path.startswith("/api/")
 
+        user = None
         # 보호된 경로에 대해서만 인증 체크
         if any(path.startswith(protected_path) for protected_path in self.protected_paths):
-            user_id = None
+            print("인증 시작")
+            authorization_header = request.headers.get("Authorization")
+            if not _is_authorization(authorization_header):
+                print("엑세스 토큰 인증 실패")
+                refresh_cookies = request.cookies.get("mb_an_tk")
 
-            # 1. Authorization 헤더에서 Bearer 토큰 확인
-            auth_header = request.headers.get("Authorization")
-            if auth_header and auth_header.startswith("Bearer "):
-                access_token = auth_header.split(" ")[1]
-                user_id = verify_access_token(access_token)
-
-            # 2. Access token이 유효하지 않으면 refresh token으로 검증
-            if not user_id:
-                refresh_token = request.cookies.get("refresh_token")
-                if refresh_token:
-                    db = SessionLocal()
-                    try:
-                        user_id = _verify_refresh_token(refresh_token, db)
-                    finally:
-                        db.close()
-
-            # 3. 인증 실패 처리
-            if not user_id:
-                if is_api_path or request.headers.get("content-type") == "application/json":
-                    # API 요청은 401 에러 반환
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="인증이 필요합니다."
-                    )
+                if not _verify_refresh_token(refresh_cookies):
+                    print("리프레시 토큰 인증 실패")
+                    if is_api_path or request.headers.get("content-type") == "application/json":
+                        raise HTTPException(
+                            status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Authentication credentials were missing or invalid."
+                        )
+                    else:
+                        redirect = RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
+                        redirect.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+                        return redirect
                 else:
-                    # 웹 페이지 요청은 로그인 페이지로 리다이렉트
-                    redirect = RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
-                    redirect.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-                    return redirect
+                    user = decode_token(refresh_cookies)
+                    print(f"리프레시 토큰 인증 성공 {user}")
+            else:
+                user = decode_token(authorization_header.split(" ")[1])
+                print(f"엑세스 토큰 인증 성공: {user}")
 
-            # 4. 인증된 사용자 정보를 request state에 저장
-            request.state.user_id = user_id
+
+        # request.state.user_id = user.get("sub")
 
         response = await call_next(request)
 

@@ -2,7 +2,27 @@ const formTextarea = document.querySelector('.form-textarea');
 const sendButton = document.querySelector('.send-button');
 const chatContainer = document.querySelector('.chat-container');
 
-// 검색창 오토 리사이징
+const urlParams = new URLSearchParams(window.location.search);
+const pylonId = urlParams.get('id');
+
+let pylonAgentCount = 0;
+
+// 에이전트 추가 모달 초기화
+window.addAgentModal = new Modal(
+    document.querySelector("#add_agent"),
+    document.querySelector("#add_agent_modal"),
+    null
+);
+
+// 알림 모달 초기화
+window.alertModal = new Modal(
+    null,
+    document.querySelector("#alert_modal"),
+    null
+);
+
+getPylon();
+
 formTextarea.addEventListener('input', function() {
     const style = window.getComputedStyle(this);
     const maxHeight = parseFloat(style.maxHeight);
@@ -22,6 +42,36 @@ formTextarea.addEventListener('keydown', (e) => keydownSendStreamMessage(e));
 sendButton.addEventListener('click', sendStreamMessage);
 
 
+async function getPylon() {
+    try {
+        const response = await window.api.get(`/api/v1/nexus/pylon/${pylonId}`);
+        const body = await response.body;
+        console.log("pylon body: ", body);
+
+        if (response.status) {
+            const pylon = await body['pylon'];
+            const pylonTitle = document.querySelector('#pylon_title');
+            const pylonDesc = document.querySelector('#pylon_desc');
+            const agentEmpty = document.querySelector('#agent_empty');
+
+            pylonTitle && (pylonTitle.textContent = pylon?.title);
+            pylonDesc && (pylonDesc.textContent = pylon?.description);
+
+            pylonAgentCount = pylon?.agent_count || 0;
+
+            if (agentEmpty) {
+                agentEmpty.style.display = pylonAgentCount === 0 ? 'block' : 'none';
+            }
+        } else if (response) {
+            alert(body.detail || '파일런 정보를 불러올 수 없습니다.');
+            window.location.href = '/nexus';
+        }
+    } catch (error) {
+        alert(error.detail || '파일런 정보를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.');
+        window.location.href = '/nexus';
+    }
+}
+
 async function keydownSendStreamMessage(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -30,6 +80,11 @@ async function keydownSendStreamMessage(e) {
 }
 
 async function sendStreamMessage() {
+    if (pylonAgentCount === 0) {
+        showAlertModal('에이전트를 먼저 추가해주세요.');
+        return;
+    }
+
     const message = formTextarea.value.trim();
     if (message) {
         console.log('Sending message:', message);
@@ -56,14 +111,13 @@ async function sendStreamMessage() {
         let currentToolMessage = null;
 
         try {
-            const response = await window.api.stream('/api/v1/pylon/streams', { message: message });
+            const { status, response } = await window.api.stream('/api/v1/pylon/stream/claude', { message: message });
 
-            console.log(`chat response: ${response}`);
-
-            if (!response.ok) {
+            if (!status) {
                 clearInterval(loadingInterval);
                 createAssistantMessage("죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.");
-                throw new Error(`❌ 스트림 오류!: ${response.status}`);
+                new Error(`❌ 스트림 오류!: ${response.status}`);
+                return;
             }
 
             const reader = response.body.getReader();
@@ -74,7 +128,7 @@ async function sendStreamMessage() {
                 const {done, value} = await reader.read();
                 if (done) break;
 
-                buffer += decoder.decode(value, {stream: true});
+                buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split('\n');
 
                 // 마지막 라인은 불완전할 수 있으므로 버퍼에 보관
@@ -140,7 +194,7 @@ async function sendStreamMessage() {
                 }
             }
         } catch (error) {
-            console.error('Error sending stream message:', error);
+            console.error('메세지 스트림 에러:', error);
             clearInterval(loadingInterval);
             messageBox.innerHTML = '죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.';
         }
@@ -245,4 +299,20 @@ function messageLoading(contentBox) {
 //         closeSidebar();
 //     }
 // });
+
+// 알림 모달 표시 함수
+function showAlertModal(message, title = '알림') {
+    const alertModalTitle = document.querySelector('#alert_modal_title');
+    const alertModalMessage = document.querySelector('#alert_modal_message');
+
+    if (alertModalTitle) {
+        alertModalTitle.textContent = title;
+    }
+
+    if (alertModalMessage) {
+        alertModalMessage.textContent = message;
+    }
+
+    window.alertModal.open();
+}
 

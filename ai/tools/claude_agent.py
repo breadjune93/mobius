@@ -1,0 +1,79 @@
+import asyncio
+import ai.tools.models.blocks as blocks
+
+from claude_agent_sdk import *
+from typing import AsyncGenerator, Dict
+
+DEFAULT_MODEL = "claude-sonnet-4-5"
+DEFAULT_SYSTEM = "당신은 기상캐스터입니다. 날씨정보에 대한 정보를 전달해주세요."
+DEFAULT_TURNS = 5
+
+
+async def stream_claude(
+    system_prompt: str,
+    prompt: str,
+    model: str = DEFAULT_MODEL,
+    max_turns: int = DEFAULT_TURNS,
+) -> AsyncGenerator[Dict, None]:
+    print("stream_claude 호출")
+
+    async with ClaudeSDKClient(
+        ClaudeAgentOptions(
+            model=model,
+            system_prompt=system_prompt,
+            max_turns=max_turns,
+        )
+    ) as client:
+        await client.query(prompt)
+        print("메시지 쿼리 실행")
+
+        async for message in client.receive_response():
+            message_type = type(message).__name__
+            print(f"메시지 타입: {message_type}")
+
+            if message_type == "AssistantMessage":
+                if hasattr(message, 'content'):
+                    for block in message.content:
+                        if isinstance(block, ToolUseBlock):
+                            yield blocks.tool_use(block)
+
+                        if isinstance(block, TextBlock):
+                            print(f"메세지 시작: {message_type}")
+                            yield blocks.text_start()
+
+                            words = block.text.split(' ')
+                            print(f"워드: {message_type}")
+                            for i, word in enumerate(words):
+                                if i > 0:
+                                    yield blocks.text_chunk(' ')  # 줄바꿈 추가
+                                yield blocks.text_chunk(word)
+                                await asyncio.sleep(0.05)  # 단어별 지연
+
+                            # 메시지 block 종료
+                            yield blocks.text_end()
+
+            if message_type == "UserMessage":
+                if hasattr(message, 'content'):
+                    for block in message.content:
+                        if isinstance(block, ToolResultBlock):
+                            if getattr(block, 'is_error', True):
+                                if _is_critical_error(block.content):
+                                    print("권한 오류로 인한 대화 종료")
+                                    yield blocks.tool_error(block)
+                                    return
+
+                            yield blocks.tool_result(block)
+
+            elif message_type == "ResultMessage":
+                print(f"[SUCCESS] 작업 완료!")
+                print(f"[COST] 토큰 비용: ${message.total_cost_usd:.4f}")
+                print(f"[TIME] 작업 시간: {message.duration_ms}ms")
+                print(f"[TURNS] 작업 횟수: {message.num_turns}")
+
+def _is_critical_error(error_content: str) -> bool:
+    """에러가 심각한지 판단"""
+    critical_patterns = [
+        "requested permissions",
+    ]
+
+    return any(pattern in error_content.lower() for pattern in critical_patterns)

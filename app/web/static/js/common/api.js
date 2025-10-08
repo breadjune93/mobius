@@ -11,6 +11,11 @@ const request = async (url, { method = 'GET', headers = {}, body } = {}) => {
             body: body ? JSON.stringify(body) : undefined,
         });
 
+        if ((headers['Accept'] || '').toLowerCase().includes('text/event-stream')) {
+            console.log("steam response invoke!: ", response);
+            return { status: response.ok, response }
+        }
+
         if (!response.ok) {
             return { status: false, body: response.json() }
         }
@@ -21,25 +26,30 @@ const request = async (url, { method = 'GET', headers = {}, body } = {}) => {
     }
 };
 
+const stream = async (url, body, opts) => {
+    const headers = {
+        'Accept': 'text/event-stream',
+        'Content-Type': 'application/json',
+        ...(opts?.headers || {}) };
+
+    const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+    return { status: res.ok, response: res };
+};
+
 window.api = {
     getToken: () => localStorage.getItem('access_token'),
     setToken: (token) => localStorage.setItem('access_token', token),
     delToken: () => localStorage.removeItem('access_token'),
     get: (path, opts) =>
         request(path, { ...opts, method: 'GET' }),
-    stream: (path, body, opts) =>
-        request(path, {
-            ...opts,
-            headers: { Accept: 'text/event-stream', ...opts?.headers },
-            method: 'POST',
-            body,
-        }),
     post: (path, body, opts) =>
         request(path, { ...opts, method: 'POST', body }),
     put: (path, body, opts) =>
         request(path, { ...opts, method: 'PUT', body }),
     del: (path, opts) =>
         request(path, { ...opts, method: 'DELETE' }),
+    stream: (path, body, opts) =>
+        stream(path, body, opts)
 }
 
 

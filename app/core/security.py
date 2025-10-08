@@ -2,6 +2,9 @@ import bcrypt
 from datetime import datetime, timezone, timedelta
 from app.core.config import settings
 from jose import jwt
+from sqlalchemy.orm import Session
+from app.db.models.user import User
+
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
 
 class SecurityError(Exception):
@@ -37,17 +40,30 @@ def create_refresh_token(subject: str, days: int = 7) -> str:
 def decode_token(token: str) -> dict:
     return jwt.decode(token, settings.SECRET, algorithms=[settings.JWT_ALG])
 
-def verify_access_token(token: str) -> str:
+def verify_access_token(token: str) -> bool:
     try:
         payload = jwt.decode(token, settings.SECRET, algorithms=[settings.JWT_ALG])
-        if payload.get("typ") != "access":
-            raise SecurityError("유효하지 않은 액세스 토큰")
-        sub = payload.get("sub")
-        if not sub:
-            raise SecurityError("사용자가 존재하지 않음")
-        return sub
-    except ExpiredSignatureError:
-        raise SecurityError("토큰 만료")
-    except JWTClaimsError or JWTError as e:
-        # 클레임 불일치 또는 서명/형식/알고리즘 오류
-        raise SecurityError(f"토큰 검증 실패: {e}")
+        if payload.get("typ") != "access" or not payload.get("sub"):
+            return False
+
+        return True
+    except Exception:
+        return False
+
+def verify_refresh_token(token: str) -> bool:
+    try:
+        payload = jwt.decode(token, settings.SECRET, algorithms=[settings.JWT_ALG])
+        if payload.get("typ") != "refresh" or not payload.get("sub"):
+            return False
+
+        # try:
+        #     user = db.query(User).filter(User.id == payload.get("sub")).first()
+        # finally:
+        #     db.close()
+        #
+        # if not user or user.refresh_token != token or not user.is_active:
+        #     return False
+
+        return True
+    except Exception:
+        return False

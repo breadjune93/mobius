@@ -1,5 +1,3 @@
-import uvicorn
-import sys
 import os
 from typing import List
 
@@ -83,7 +81,10 @@ if __name__ == "__main__":
         "app.main:app",
         host=os.getenv("UVICORN_HOST", "127.0.0.1"),
         port=int(os.getenv("UVICORN_PORT", "1993")),
-        reload=os.getenv("UVICORN_RELOAD", "true").lower() == "true",
+        reload=False,
+        # reload=os.getenv("UVICORN_RELOAD", "true").lower() == "true",
     )
     uvicorn.run(app, host="127.0.0.1", port=1993)
+
+
 

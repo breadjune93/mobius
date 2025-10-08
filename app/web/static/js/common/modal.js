@@ -2,7 +2,6 @@ class Modal {
     constructor(event, target, callback = null) {
         this.button = event;
         this.modal = target;
-        this.callback = callback;
         this.initialize();
     }
 
@@ -41,12 +40,5 @@ class Modal {
 
     close() {
         this.modal.classList.remove("active")
-    }
-
-    save() {
-        if (typeof this.callback === "function") {
-            this.close();
-            this.callback();
-        }
     }
 }

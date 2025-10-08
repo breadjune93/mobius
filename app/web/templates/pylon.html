@@ -99,6 +99,24 @@
         </div>
     </div>
 
+    <!-- Alert Modal -->
+    <div class="modal-overlay" id="alert_modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="alert_modal_title">알림</h2>
+                <button name="close" class="modal-close-btn">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <p id="alert_modal_message" style="margin: 0; padding: 1rem 0; color: var(--light-300); line-height: 1.6;"></p>
+                <div class="modal-footer">
+                    <button type="button" name="close" class="modal-btn modal-btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Settings Modal -->
 <!--    <div class="modal-overlay" id="settingsModal">-->
 <!--        <div class="modal-container">-->
@@ -187,9 +205,9 @@
             <div class="title-left">
                 <div class="title-title">
                     <img src="/image/nexus.png" alt="Pylon Logo" class="nexus-logo" />
-                    <h2 class="title-header" id="pylonName">파일런</h2>
+                    <h2 class="title-header" id="pylon_title"></h2>
                 </div>
-                <span class="title-total-pylon" id="pylonDesc">TOTAL - 0 agents</span>
+                <span class="title-total-pylon" id="pylon_desc"></span>
             </div>
             <div class="title-right">
                 <button class="btn btn-primary" id="add_agent">
@@ -223,77 +241,12 @@
             </button>
         </div>
     </div>
-
         <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
-<!--        <script type="application/javascript" src="/js/common/theme-toggle.js"></script>-->
         <script type="application/javascript" src="/js/common/api.js"></script>
         <script type="application/javascript" src="/js/common/util.js"></script>
-<!--        <script type="application/javascript" src="/js/settings-modal.js"></script>-->
+        <script type="application/javascript" src="/js/common/modal.js"></script>
         <script type="application/javascript" src="/js/markdown.js"></script>
         <script type="application/javascript" src="/js/messageBox.js"></script>
-        <script type="application/javascript" src="/js/chat.js"></script>
-        <script type="application/javascript" src="/js/modal.js"></script>
-        <script>
-        // URL에서 pylon ID 가져오기
-        const urlParams = new URLSearchParams(window.location.search);
-        const pylonId = urlParams.get('id');
-
-        // 페이지 로드 시 pylon 정보 가져오기
-        document.addEventListener("DOMContentLoaded", async function() {
-            if (!pylonId) {
-                alert('파일런 ID가 없습니다.');
-                window.location.href = '/nexus';
-                return;
-            }
-
-            try {
-                const response = await window.api.get(`/api/v1/nexus/pylon/${pylonId}`);
-
-                if (response && response.ok) {
-                    const result = await response.json();
-                    const pylon = result.pylon;
-
-                    // 파일런 정보를 페이지에 표시
-                    console.log('Pylon loaded:', pylon);
-
-                    // 헤더 타이틀은 Mobius로 고정 (업데이트 하지 않음)
-
-                    // Content Title 영역 업데이트
-                    const pylonName = document.getElementById('pylonName');
-                    const pylonDesc = document.getElementById('pylonDesc');
-                    if (pylonName) {
-                        pylonName.textContent = pylon.title;
-                    }
-                    if (pylonDesc) {
-                        pylonDesc.textContent = pylon.description;
-                    }
-
-                    // 채팅 미리보기 업데이트
-                    const chatPreview = document.querySelector('.chat-preview');
-                    if (chatPreview) {
-                        chatPreview.textContent = pylon.description;
-                    }
-
-                    // 전역 변수로 pylon 정보 저장
-                    window.currentPylon = pylon;
-                } else if (response) {
-                    const error = await response.json();
-                    alert(error.detail || '파일런 정보를 불러올 수 없습니다.');
-                    window.location.href = '/nexus';
-                }
-            } catch (error) {
-                console.error('Failed to load pylon:', error);
-                alert('파일런 정보를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.');
-                window.location.href = '/nexus';
-            }
-        });
-
-        // 에이전트 추가 모달 초기화
-        window.addAgentModal = new Modal(
-            document.querySelector("#add_agent"),
-            document.querySelector("#add_agent_modal"),
-            null
-        );
-    </script>
+        <script type="application/javascript" src="/js/pylon.js" defer></script>
 </body>
 </html>

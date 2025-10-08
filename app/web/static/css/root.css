@@ -309,52 +309,13 @@ body {
     background-color: #b91c1c;
 }
 
-.modal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1.5rem 0;
-    border-top: 1px solid #3a3b3f;
-}
-
-.modal-btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.modal-btn-secondary {
-    background-color: transparent;
-    color: #a8aaae;
-    border: 1px solid #404247;
-}
-
-.modal-btn-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: #FFFFFF;
-    border-color: #5b5d62;
-}
-
-.modal-btn-primary {
-    background-color: #5b4dd6;
-    color: #FFFFFF;
-}
-
-.modal-btn-primary:hover {
-    background-color: #4c3fbb;
-}
 
 
 /* container */
 .container {
     max-width: 1600px;
     width: calc(100% - 80px);
-    margin: 70px auto;
+    margin: 35px auto;
 }
 
 .btn {
