@@ -366,8 +366,9 @@ body {
 
 .title-left {
     display: flex;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
 }
 
 .title-title {
@@ -389,5 +390,11 @@ body {
 .title-right {
     display: flex;
     gap: 12px;
+}
+
+.title-total-pylon {
+    font-size: 0.875rem;
+    color: var(--light-600);
+    margin: 0;
 }
 

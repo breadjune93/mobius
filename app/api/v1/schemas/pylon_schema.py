@@ -13,6 +13,7 @@ class AgentResponse(BaseModel):
     assistant: str
     model: str
     instructions: str
+    description: str
     max_turns: int
     temperature: float
     allowed_tools: Optional[dict] = None

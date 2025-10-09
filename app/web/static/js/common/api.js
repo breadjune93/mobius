@@ -11,6 +11,13 @@ const request = async (url, { method = 'GET', headers = {}, body } = {}) => {
             body: body ? JSON.stringify(body) : undefined,
         });
 
+        // 새로운 access_token이 response header에 있는지 확인
+        const newAccessToken = response.headers.get('X-New-Access-Token');
+        if (newAccessToken) {
+            console.log('새로운 access_token 감지 - localStorage에 저장');
+            localStorage.setItem('access_token', newAccessToken);
+        }
+
         if ((headers['Accept'] || '').toLowerCase().includes('text/event-stream')) {
             console.log("steam response invoke!: ", response);
             return { status: response.ok, response }
@@ -27,12 +34,23 @@ const request = async (url, { method = 'GET', headers = {}, body } = {}) => {
 };
 
 const stream = async (url, body, opts) => {
+    const token = localStorage.getItem('access_token');
     const headers = {
         'Accept': 'text/event-stream',
         'Content-Type': 'application/json',
-        ...(opts?.headers || {}) };
+        ...(opts?.headers || {}),
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
 
     const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+
+    // 새로운 access_token이 response header에 있는지 확인
+    const newAccessToken = res.headers.get('X-New-Access-Token');
+    if (newAccessToken) {
+        console.log('새로운 access_token 감지 (stream) - localStorage에 저장');
+        localStorage.setItem('access_token', newAccessToken);
+    }
+
     return { status: res.ok, response: res };
 };
 

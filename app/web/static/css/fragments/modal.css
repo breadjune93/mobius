@@ -69,6 +69,16 @@
 }
 
 .modal-content {
+    min-height: 200px;
+    max-height: 60vh;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.modal-alert-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     min-height: 150px;
     max-height: 60vh;
     padding: 1.5rem;
@@ -80,7 +90,7 @@
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
-    padding-top: 15px;
+    padding: 15px;
     border-top: 1px solid #3a3b3f;
 }
 
@@ -113,4 +123,44 @@
 
 .modal-btn-primary:hover {
     background-color: #4c3fbb;
+}
+
+/* Agent Detail Styles */
+.agent-detail {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: var(--dark-600);
+    border-radius: 0.5rem;
+    border: 1px solid var(--dark-400);
+}
+
+.agent-detail-item {
+    margin-bottom: 1rem;
+}
+
+.agent-detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.agent-detail-label {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--light-600);
+    margin-bottom: 0.25rem;
+    min-width: 100px;
+}
+
+.agent-detail-value {
+    font-size: 0.875rem;
+    color: var(--light-300);
+    margin-left: 0.5rem;
+}
+
+.agent-detail-description {
+    font-size: 0.875rem;
+    color: var(--light-300);
+    margin: 0.5rem 0 0 0;
+    line-height: 1.5;
+    white-space: pre-wrap;
 }

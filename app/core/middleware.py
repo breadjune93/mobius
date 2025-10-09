@@ -4,7 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from typing import Callable, Any
 from sqlalchemy.orm import Session
-from app.core.security import decode_token, verify_access_token, verify_refresh_token
+from app.core.security import decode_token, verify_access_token, verify_refresh_token, create_access_token, create_refresh_token
 from app.db.base import SessionLocal
 from app.db.models.user import User
 
@@ -52,6 +52,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         is_api_path = path.startswith("/api/")
 
         user = None
+        new_access_token = None
+        new_refresh_token = None
+
         # 보호된 경로에 대해서만 인증 체크
         if any(path.startswith(protected_path) for protected_path in self.protected_paths):
             print("인증 시작")
@@ -72,16 +75,54 @@ class AuthMiddleware(BaseHTTPMiddleware):
                         redirect.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
                         return redirect
                 else:
+                    # 리프레시 토큰 인증 성공 - 토큰 재발급
                     user = decode_token(refresh_cookies)
-                    print(f"리프레시 토큰 인증 성공 {user}")
+                    user_id = user.get("sub")
+                    print(f"리프레시 토큰 인증 성공 - 사용자 ID: {user_id}")
+
+                    # 새로운 access_token과 refresh_token 생성
+                    new_access_token = create_access_token(user_id)
+                    new_refresh_token = create_refresh_token(user_id)
+
+                    # DB에 새로운 refresh_token 저장
+                    db = SessionLocal()
+                    try:
+                        db_user = db.query(User).filter(User.id == user_id).first()
+                        if db_user:
+                            db_user.refresh_token = new_refresh_token
+                            db.commit()
+                            print(f"새로운 refresh_token DB 저장 완료")
+                    finally:
+                        db.close()
             else:
                 user = decode_token(authorization_header.split(" ")[1])
                 print(f"엑세스 토큰 인증 성공: {user}")
 
-
-        # request.state.user_id = user.get("sub")
+        # 인증된 사용자 정보를 request.state에 저장
+        if user:
+            request.session["user_id"] = user.get("sub")
+            # request.state.user_id = user.get("sub")
+            # print(f"request.state.user_id 설정: {request.state.user_id}")
 
         response = await call_next(request)
+
+        # 토큰이 재발급된 경우 response에 설정
+        if new_access_token:
+            # access_token을 response header에 추가
+            response.headers["X-New-Access-Token"] = new_access_token
+            print(f"새로운 access_token을 응답 헤더에 추가")
+
+        if new_refresh_token:
+            # refresh_token을 httpOnly 쿠키로 설정
+            response.set_cookie(
+                key="mb_an_tk",
+                value=new_refresh_token,
+                httponly=True,
+                secure=True,
+                samesite="strict",
+                max_age=7 * 24 * 60 * 60  # 7일
+            )
+            print(f"새로운 refresh_token을 쿠키에 설정")
 
         # 캐시 방지 헤더 추가
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"

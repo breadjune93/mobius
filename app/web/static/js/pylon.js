@@ -1,17 +1,19 @@
 const formTextarea = document.querySelector('.form-textarea');
 const sendButton = document.querySelector('.send-button');
 const chatContainer = document.querySelector('.chat-container');
+const addAgent = document.querySelector('#add_agent');
+const agentSelect = document.querySelector('#agent_select');
 
 const urlParams = new URLSearchParams(window.location.search);
 const pylonId = urlParams.get('id');
 
 let pylonAgentCount = 0;
+let agents = []; // 전역 변수로 에이전트 목록 저장
 
 // 에이전트 추가 모달 초기화
 window.addAgentModal = new Modal(
     document.querySelector("#add_agent"),
-    document.querySelector("#add_agent_modal"),
-    null
+    document.querySelector("#add_agent_modal")
 );
 
 // 알림 모달 초기화
@@ -22,6 +24,16 @@ window.alertModal = new Modal(
 );
 
 getPylon();
+
+// 에이전트 생성
+if (addAgent) {
+    addAgent.addEventListener("click", loadAgents);
+}
+
+// 에이전트 선택
+if (agentSelect) {
+    agentSelect.addEventListener('change', handleAgentSelection);
+}
 
 formTextarea.addEventListener('input', function() {
     const style = window.getComputedStyle(this);
@@ -210,95 +222,6 @@ function messageLoading(contentBox) {
     }, 500);
 }
 
-// Sidebar functionality
-// function toggleSidebar() {
-//     const sidebar = document.getElementById('sidebar');
-//     const overlay = document.getElementById('sidebarOverlay');
-//
-//     sidebar.classList.toggle('active');
-//     overlay.classList.toggle('active');
-// }
-
-// function closeSidebar() {
-//     const sidebar = document.getElementById('sidebar');
-//     const overlay = document.getElementById('sidebarOverlay');
-//
-//     sidebar.classList.remove('active');
-//     overlay.classList.remove('active');
-// }
-
-// function createNewChat() {
-//     // Clear current chat
-//     chatContainer.innerHTML = '';
-//
-//     // Add new chat to history
-//     const chatList = document.getElementById('chatList');
-//
-//     // Remove active class from all items
-//     chatList.querySelectorAll('.chat-item').forEach(item => {
-//         item.classList.remove('active');
-//     });
-//
-//     // Create new chat item
-//     const newChatItem = document.createElement('div');
-//     newChatItem.className = 'chat-item active';
-//     newChatItem.onclick = function() { selectChat(this); };
-//
-//     const chatTitle = new Date().toLocaleString('ko-KR', {
-//         month: 'short',
-//         day: 'numeric',
-//         hour: '2-digit',
-//         minute: '2-digit'
-//     });
-//
-//     newChatItem.innerHTML = `
-//         <div class="chat-title">새 채팅 - ${chatTitle}</div>
-//         <div class="chat-preview">새로운 대화를 시작하세요...</div>
-//     `;
-//
-//     // Add to top of chat list
-//     chatList.insertBefore(newChatItem, chatList.firstChild);
-//
-//     // Close sidebar
-//     closeSidebar();
-//
-//     // Focus message input
-//     formTextarea.focus();
-// }
-
-// function selectChat(chatItem) {
-//     // Remove active class from all items
-//     document.querySelectorAll('.chat-item').forEach(item => {
-//         item.classList.remove('active');
-//     });
-//
-//     // Add active class to selected item
-//     chatItem.classList.add('active');
-//
-//     // Here you would load the chat history for the selected chat
-//     // For now, just close the sidebar
-//     closeSidebar();
-// }
-
-// Close sidebar when clicking outside
-// document.addEventListener('click', function(event) {
-//     const sidebar = document.getElementById('sidebar');
-//     const overlay = document.getElementById('sidebarOverlay');
-//     const menuBtn = document.querySelector('.menu-btn');
-//
-//     if (sidebar.classList.contains('active') &&
-//         !sidebar.contains(event.target) &&
-//         !menuBtn.contains(event.target)) {
-//         closeSidebar();
-//     }
-// });
-
-// Close sidebar on escape key
-// document.addEventListener('keydown', function(event) {
-//     if (event.key === 'Escape') {
-//         closeSidebar();
-//     }
-// });
 
 // 알림 모달 표시 함수
 function showAlertModal(message, title = '알림') {
@@ -314,5 +237,72 @@ function showAlertModal(message, title = '알림') {
     }
 
     window.alertModal.open();
+}
+
+// 에이전트 목록 로드 및 selectbox 채우기
+async function loadAgents() {
+    try {
+        const response = await window.api.get('/api/v1/pylon/agents');
+        const body = await response.body;
+
+        if (response.status && body["agents"]) {
+            const agents = body["agents"];
+            const agentSelect = document.querySelector('#agent_select');
+
+            if (agentSelect) {
+                // 기존 옵션 제거 (첫 번째 옵션 제외)
+                agentSelect.innerHTML = '<option value="">에이전트를 선택하세요</option>';
+
+                // 에이전트 목록을 selectbox에 추가
+                agents.forEach(agent => {
+                    const option = document.createElement('option');
+                    option.value = agent.id;
+                    option.textContent = `${agent.name}(${agent.id})`;
+                    option.dataset.agent = JSON.stringify(agent); // 에이전트 정보를 data attribute로 저장
+                    agentSelect.appendChild(option);
+                });
+            }
+
+            // 상세 정보 영역 초기화
+            const agentDetail = document.querySelector('#agent_detail');
+            if (agentDetail) {
+                agentDetail.style.display = 'none';
+            }
+        } else {
+            showAlertModal('에이전트 목록을 불러올 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('에이전트 로드 에러:', error);
+        showAlertModal('에이전트 목록을 불러오는 중 오류가 발생했습니다.');
+    }
+}
+
+// 에이전트 선택 시 상세 정보 표시
+function handleAgentSelection(event) {
+    const selectedOption = event.target.options[event.target.selectedIndex];
+    const agentDetail = document.querySelector('#agent_detail');
+
+    if (!selectedOption.value || !agentDetail) {
+        if (agentDetail) {
+            agentDetail.style.display = 'none';
+        }
+        return;
+    }
+
+    try {
+        const agent = JSON.parse(selectedOption.dataset.agent);
+
+        // 상세 정보 표시
+        document.querySelector('#agent_detail_name').textContent = `${agent.name}(${agent.id})`;
+        document.querySelector('#agent_detail_assistant').textContent = agent.assistant || 'N/A';
+        document.querySelector('#agent_detail_model').textContent = agent.model || 'N/A';
+        document.querySelector('#agent_detail_description').textContent = agent.description || '설명 없음';
+
+        // 상세 정보 영역 표시
+        agentDetail.style.display = 'block';
+    } catch (error) {
+        console.error('에이전트 정보 파싱 에러:', error);
+        agentDetail.style.display = 'none';
+    }
 }
 

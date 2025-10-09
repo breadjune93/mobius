@@ -85,6 +85,31 @@
     color: var(--light-700);
 }
 
+/* Select specific styles */
+select.form-input {
+    padding-right: 2.5rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25rem 1.25rem;
+    cursor: pointer;
+}
+
+select.form-input:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236d5de8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+select.form-input option {
+    background-color: var(--dark-500);
+    color: var(--light-300);
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 0.25rem;
+}
+
 .form-help {
     color: var(--dark-100);
     font-size: 12px;
@@ -205,6 +230,19 @@ body.white-theme .form-input:focus {
 
 body.white-theme .form-input::placeholder {
     color: var(--dark-200);
+}
+
+body.white-theme select.form-input {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+body.white-theme select.form-input:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%235b4dd6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+body.white-theme select.form-input option {
+    background-color: var(--light-100);
+    color: var(--dark-600);
 }
 
 body.white-theme .submit-button {

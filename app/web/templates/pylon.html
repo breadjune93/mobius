@@ -75,26 +75,48 @@
                     <i class="fa fa-times"></i>
                 </button>
             </div>
+
             <div class="modal-content">
                 <form name="add-agent">
                     <div class="form-group">
-                        <label for="agent_name" class="form-label">에이전트 이름</label>
-                        <input
-                            type="text"
-                            id="agent_name"
-                            name="name"
+                        <label for="agent_select" class="form-label">에이전트 선택</label>
+                        <select
+                            id="agent_select"
+                            name="agent_id"
                             class="form-input"
-                            placeholder="에이전트 이름을 입력하세요"
                             required
-                        />
+                        >
+                            <option value="">에이전트를 선택하세요</option>
+                        </select>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" name="close" class="modal-btn modal-btn-secondary">취소</button>
-                        <button type="submit" name="add-agent" class="modal-btn modal-btn-primary">
-                            <span>추가</span>
-                        </button>
+
+                    <!-- 선택된 에이전트 상세 정보 -->
+                    <div id="agent_detail" class="agent-detail" style="display: none;">
+                        <div class="agent-detail-item">
+                            <span class="agent-detail-label">이름(ID):</span>
+                            <span id="agent_detail_name" class="agent-detail-value"></span>
+                        </div>
+                        <div class="agent-detail-item">
+                            <span class="agent-detail-label">Assistant:</span>
+                            <span id="agent_detail_assistant" class="agent-detail-value"></span>
+                        </div>
+                        <div class="agent-detail-item">
+                            <span class="agent-detail-label">Model:</span>
+                            <span id="agent_detail_model" class="agent-detail-value"></span>
+                        </div>
+                        <div class="agent-detail-item">
+                            <span class="agent-detail-label">Description:</span>
+                            <p id="agent_detail_description" class="agent-detail-description"></p>
+                        </div>
                     </div>
                 </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" name="close" class="modal-btn modal-btn-secondary">취소</button>
+                <button type="submit" name="add-agent" class="modal-btn modal-btn-primary">
+                    <span>추가</span>
+                </button>
             </div>
         </div>
     </div>
@@ -108,11 +130,13 @@
                     <i class="fa fa-times"></i>
                 </button>
             </div>
-            <div class="modal-content">
-                <p id="alert_modal_message" style="margin: 0; padding: 1rem 0; color: var(--light-300); line-height: 1.6;"></p>
-                <div class="modal-footer">
-                    <button type="button" name="close" class="modal-btn modal-btn-primary">확인</button>
-                </div>
+
+            <div class="modal-alert-content">
+                <p id="alert_modal_message"></p>
+            </div>
+
+             <div class="modal-footer">
+                <button type="button" name="close" class="modal-btn modal-btn-primary">확인</button>
             </div>
         </div>
     </div>
