@@ -36,3 +36,11 @@ def tool_error(block):
         "id": block.tool_use_id,
         "error": block.content,
     }
+
+def result_error(subtype, session_id, message):
+    return {
+        "type": "result_error",
+        "id": session_id,
+        "subtype": subtype,
+        "error": message,
+    }

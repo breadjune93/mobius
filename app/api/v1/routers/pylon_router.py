@@ -130,6 +130,7 @@ async def chat_stream(request: Request, payload: ChatRequest):
 
                 yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
         except Exception as e:
+            print(f"스트림 에러: {e}")
             error_msg = f"{type(e).__name__}: {str(e)}"
             traceback_str = traceback.format_exc()
             error_data = json.dumps({"error": error_msg, "traceback": traceback_str, "done": True}, ensure_ascii=False)

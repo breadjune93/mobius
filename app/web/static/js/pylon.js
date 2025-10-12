@@ -1,14 +1,17 @@
 const formTextarea = document.querySelector('.form-textarea');
 const sendButton = document.querySelector('.send-button');
 const chatContainer = document.querySelector('.chat-container');
-const addAgent = document.querySelector('#add_agent');
 const agentSelect = document.querySelector('#agent_select');
+const addAgentTrigger = document.querySelector('#add_agent');
+const addAgent = document.querySelector('button[name=add-agent]');
 
 const urlParams = new URLSearchParams(window.location.search);
 const pylonId = urlParams.get('id');
 
 let pylonAgentCount = 0;
 let agents = []; // 전역 변수로 에이전트 목록 저장
+
+getPylon();
 
 // 에이전트 추가 모달 초기화
 window.addAgentModal = new Modal(
@@ -23,37 +26,31 @@ window.alertModal = new Modal(
     null
 );
 
-getPylon();
-
-// 에이전트 생성
-if (addAgent) {
-    addAgent.addEventListener("click", loadAgents);
-}
+/***********************
+ *        Event        *
+ ***********************/
+// 에이전트 추가(모달)
+addAgentTrigger?.addEventListener("click", loadAgents);
 
 // 에이전트 선택
-if (agentSelect) {
-    agentSelect.addEventListener('change', handleAgentSelection);
-}
+agentSelect?.addEventListener('change', handleAgentSelection);
 
-formTextarea.addEventListener('input', function() {
-    const style = window.getComputedStyle(this);
-    const maxHeight = parseFloat(style.maxHeight);
-    const scrollHeight = this.scrollHeight;
+// 에이전트 생성
+addAgent?.addEventListener('click', createAgent);
 
-    this.style.height = 'auto';
-    this.style.height = `${Math.min(scrollHeight, 500)}px`;
+// 프롬프트 입력
+formTextarea?.addEventListener('input', (e) => keywordInput(e.target));
 
-    (scrollHeight > maxHeight) ? this.classList.add('on-scroll') : this.classList.remove('on-scroll');
-});
+// 프롬프트 Enter 전송
+formTextarea?.addEventListener('keydown', (e) => keydownSendStreamMessage(e));
 
-
-// Enter 검색
-formTextarea.addEventListener('keydown', (e) => keydownSendStreamMessage(e));
-
-// 검색
-sendButton.addEventListener('click', sendStreamMessage);
+// 프롬프트 전송
+sendButton?.addEventListener('click', sendStreamMessage);
 
 
+/***********************
+ *       Function      *
+ ***********************/
 async function getPylon() {
     try {
         const response = await window.api.get(`/api/v1/nexus/pylon/${pylonId}`);
@@ -64,16 +61,14 @@ async function getPylon() {
             const pylon = await body['pylon'];
             const pylonTitle = document.querySelector('#pylon_title');
             const pylonDesc = document.querySelector('#pylon_desc');
-            const agentEmpty = document.querySelector('#agent_empty');
+            const emptyState = document.querySelector('.empty-state');
 
             pylonTitle && (pylonTitle.textContent = pylon?.title);
             pylonDesc && (pylonDesc.textContent = pylon?.description);
 
             pylonAgentCount = pylon?.agent_count || 0;
 
-            if (agentEmpty) {
-                agentEmpty.style.display = pylonAgentCount === 0 ? 'block' : 'none';
-            }
+            pylonAgentCount !== 0 && emptyState?.classList.add("disabled");
         } else if (response) {
             alert(body.detail || '파일런 정보를 불러올 수 없습니다.');
             window.location.href = '/nexus';
@@ -84,162 +79,7 @@ async function getPylon() {
     }
 }
 
-async function keydownSendStreamMessage(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        await sendStreamMessage();
-    }
-}
-
-async function sendStreamMessage() {
-    if (pylonAgentCount === 0) {
-        showAlertModal('에이전트를 먼저 추가해주세요.');
-        return;
-    }
-
-    const message = formTextarea.value.trim();
-    if (message) {
-        console.log('Sending message:', message);
-
-        // 입력창 초기화
-        formTextarea.value = '';
-
-        // 사용자 메시지를 채팅에 추가
-        createUserMessage(message);
-
-        // Update current chat preview in sidebar
-        const activeChat = document.querySelector('.chat-item.active');
-        if (activeChat) {
-            const preview = activeChat.querySelector('.chat-preview');
-            if (preview) {
-                preview.textContent = message.length > 30 ? message.substring(0, 30) + '...' : message;
-            }
-        }
-
-        let assistantResponse = "";
-        let isFirstResponse = true;
-        let messageBox = createAssistantMessage(".");
-        let loadingInterval = messageLoading(messageBox);
-        let currentToolMessage = null;
-
-        try {
-            const { status, response } = await window.api.stream('/api/v1/pylon/stream/claude', { message: message });
-
-            if (!status) {
-                clearInterval(loadingInterval);
-                createAssistantMessage("죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.");
-                new Error(`❌ 스트림 오류!: ${response.status}`);
-                return;
-            }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = '';
-
-            while (true) {
-                const {done, value} = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-
-                // 마지막 라인은 불완전할 수 있으므로 버퍼에 보관
-                buffer = lines.pop() || '';
-
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        try {
-                            const jsonStr = line.substring(6).trim();
-                            if (jsonStr) {
-                                const data = JSON.parse(jsonStr);
-
-                                console.log("data: ", data);
-
-                                if (data.type === "text_start") {
-                                    if (!isFirstResponse) {
-                                        messageBox = createAssistantMessage(""); // 새로운 박스 생성 및 타겟팅
-                                    }
-                                    clearInterval(loadingInterval);
-                                    isFirstResponse = false;
-                                    assistantResponse = '';                  // chunk 초기화
-                                }
-
-                                if (data.type === "text_chunk") {
-                                    assistantResponse += data.text;
-                                    messageBox.innerHTML = md.render(assistantResponse);
-                                }
-
-                                if (data.type === "tool_use") {
-                                    if (!currentToolMessage) {
-                                        currentToolMessage = createToolMessage();
-                                    }
-                                    addToolUseStep(currentToolMessage, data.name, md.render(JSON.stringify(data.input, null, 2)));
-                                }
-
-                                if (data.type === "tool_result") {
-                                    if (currentToolMessage) {
-                                        addToolResultStep(currentToolMessage, data.content, data.is_error);
-                                    }
-                                }
-
-                                if (data.type === "tool_error"){
-                                    if (currentToolMessage) {
-                                        addToolErrorStep(currentToolMessage, data.error);
-                                    }
-                                }
-
-                                if (data.type === "text_end") {
-                                    console.log('메시지 박스 종료');
-                                    // 도구 메시지가 있다면 완료 처리
-                                    if (currentToolMessage) {
-                                        completeToolMessage(currentToolMessage);
-                                        currentToolMessage = null;
-                                    }
-                                }
-
-                                 chatContainer.scrollTop = chatContainer.scrollHeight;
-                            }
-                        } catch (parseError) {
-                            console.error('Error parsing streaming data:', parseError, 'Line:', line);
-                        }
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('메세지 스트림 에러:', error);
-            clearInterval(loadingInterval);
-            messageBox.innerHTML = '죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.';
-        }
-    }
-}
-
-// 로딩 점 애니메이션을 위한 함수
-function messageLoading(contentBox) {
-    let dotCount = 0;
-    return setInterval(() => {
-        dotCount = (dotCount % 3) + 1;
-        contentBox.textContent = '.'.repeat(dotCount);
-    }, 500);
-}
-
-
-// 알림 모달 표시 함수
-function showAlertModal(message, title = '알림') {
-    const alertModalTitle = document.querySelector('#alert_modal_title');
-    const alertModalMessage = document.querySelector('#alert_modal_message');
-
-    if (alertModalTitle) {
-        alertModalTitle.textContent = title;
-    }
-
-    if (alertModalMessage) {
-        alertModalMessage.textContent = message;
-    }
-
-    window.alertModal.open();
-}
-
-// 에이전트 목록 로드 및 selectbox 채우기
+// load agents
 async function loadAgents() {
     try {
         const response = await window.api.get('/api/v1/pylon/agents');
@@ -250,10 +90,8 @@ async function loadAgents() {
             const agentSelect = document.querySelector('#agent_select');
 
             if (agentSelect) {
-                // 기존 옵션 제거 (첫 번째 옵션 제외)
                 agentSelect.innerHTML = '<option value="">에이전트를 선택하세요</option>';
 
-                // 에이전트 목록을 selectbox에 추가
                 agents.forEach(agent => {
                     const option = document.createElement('option');
                     option.value = agent.id;
@@ -305,4 +143,133 @@ function handleAgentSelection(event) {
         agentDetail.style.display = 'none';
     }
 }
+
+async function createAgent() {
+    window.addAgentModal.close();
+
+    const agentSelect = document.querySelector("#agent_select");
+    const emptyState = document.querySelector(".empty-state");
+    const agentResponse = await window.api.get(`/api/v1/pylon/agent/${agentSelect.value}`);
+
+    if (!agentResponse.status) {
+        showAlertModal('에이전트 추가에 실패했습니다. 관리자에 문의하세요.');
+        return;
+    }
+
+    const body = await agentResponse.body;
+    const agent = await body['agent'];
+    emptyState?.classList.add("disabled");
+
+    const firstMessage = createMessage("", true);
+    const loadingInterval = createLoadingInterval(firstMessage);
+
+    const introducePrompt = JSON.stringify(agent) + `
+        1. json 객체에서 name 을 항상 처음에 소개.
+        2. 객체의 내용으로 짧게(100자 이내) 어떤 역할을 수행하는지 설명.
+    `;
+
+    console.log("소개 프롬프트: ", introducePrompt);
+
+    try {
+        const streamResponse = await window.api.stream('/api/v1/pylon/stream/claude', {
+            message: introducePrompt
+        });
+
+        if (!isResponseCompleted(loadingInterval, streamResponse.status)) {
+            return;
+        }
+
+        await processStream(firstMessage, loadingInterval, streamResponse.response);
+
+        // TODO: 응답 받은 메시지에서 session ID와 에이전트 데이터들로 chats와 sessions 테이블에 저장
+    } catch (error) {
+        console.error('인트로 스트림 에러:', error);
+        clearInterval(loadingInterval);
+        createMessage("죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.", true);
+    }
+}
+
+function keywordInput(element) {
+    const style = window.getComputedStyle(element);
+    const maxHeight = parseFloat(style.maxHeight);
+    const scrollHeight = element.scrollHeight;
+
+    element.style.height = 'auto';
+    element.style.height = `${Math.min(scrollHeight, 500)}px`;
+
+    (scrollHeight > maxHeight) ? element.classList.add('on-scroll') : element.classList.remove('on-scroll');
+}
+
+async function keydownSendStreamMessage(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        await sendStreamMessage();
+    }
+}
+
+async function sendStreamMessage() {
+    const message = formTextarea.value.trim();
+
+    // if (pylonAgentCount === 0) {
+    //     showAlertModal('에이전트를 먼저 추가해주세요.');
+    //     return;
+    // }
+
+    if (!message) {
+        showAlertModal('메시지를 입력해주세요.');
+        return;
+    }
+
+    // 입력창 초기화
+    formTextarea.value = '';
+
+    // 사용자 메시지를 채팅에 추가
+    createMessage(message);
+
+    const firstMessage = createMessage("", true);
+    const loadingInterval = createLoadingInterval(firstMessage);
+
+    try {
+        const streamResponse = await window.api.stream('/api/v1/pylon/stream/claude', { message: message });
+
+        // 스트림 연결 확인
+        if (!isResponseCompleted(loadingInterval, streamResponse.status)) {
+            return;
+        }
+
+        await processStream(firstMessage, loadingInterval, streamResponse.response);
+
+    } catch (error) {
+        console.error('메세지 스트림 에러:', error);
+        clearInterval(loadingInterval);
+        createMessage("죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.", true);
+    }
+}
+
+// 로딩 점 애니메이션을 위한 함수
+function messageLoading(contentBox) {
+    let dotCount = 0;
+    return setInterval(() => {
+        dotCount = (dotCount % 3) + 1;
+        contentBox.textContent = '.'.repeat(dotCount);
+    }, 500);
+}
+
+
+// 알림 모달 표시 함수
+function showAlertModal(message, title = '알림') {
+    const alertModalTitle = document.querySelector('#alert_modal_title');
+    const alertModalMessage = document.querySelector('#alert_modal_message');
+
+    if (alertModalTitle) {
+        alertModalTitle.textContent = title;
+    }
+
+    if (alertModalMessage) {
+        alertModalMessage.textContent = message;
+    }
+
+    window.alertModal.open();
+}
+
 

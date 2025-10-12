@@ -398,3 +398,11 @@ body {
     margin: 0;
 }
 
+.disabled {
+    display: none;
+}
+
+.flexed {
+    display: flex;
+}
+

@@ -29,11 +29,11 @@ async def stream_claude(
 
         async for message in client.receive_response():
             message_type = type(message).__name__
-            print(f"메시지 타입: {message_type}")
+            print(f"메시지: {message}")
 
-            if message_type == "AssistantMessage":
-                if hasattr(message, 'content'):
-                    for block in message.content:
+            if hasattr(message, "content"):
+                for block in message.content:
+                    if message_type == "AssistantMessage":
                         if isinstance(block, ToolUseBlock):
                             yield blocks.tool_use(block)
 
@@ -42,7 +42,7 @@ async def stream_claude(
                             yield blocks.text_start()
 
                             words = block.text.split(' ')
-                            print(f"워드: {message_type}")
+                            print(f"워드: {words}")
                             for i, word in enumerate(words):
                                 if i > 0:
                                     yield blocks.text_chunk(' ')  # 줄바꿈 추가
@@ -52,9 +52,7 @@ async def stream_claude(
                             # 메시지 block 종료
                             yield blocks.text_end()
 
-            if message_type == "UserMessage":
-                if hasattr(message, 'content'):
-                    for block in message.content:
+                    if message_type == "UserMessage":
                         if isinstance(block, ToolResultBlock):
                             if getattr(block, 'is_error', True):
                                 if _is_critical_error(block.content):
@@ -65,6 +63,14 @@ async def stream_claude(
                             yield blocks.tool_result(block)
 
             elif message_type == "ResultMessage":
+                if hasattr(message, "subtype"):
+                    if message.subtype == 'error_max_turns':
+                        yield blocks.result_error(message.subtype, message.session_id, "최대 턴수를 초과했습니다. 관리자에 문의하세요.")
+                        return
+                    elif message.subtype != 'success':
+                        yield blocks.result_error(message.subtype, message.session_id, "알수 없는 오류입니다. 관리자에 문의하세요.")
+                        return
+
                 print(f"[SUCCESS] 작업 완료!")
                 print(f"[COST] 토큰 비용: ${message.total_cost_usd:.4f}")
                 print(f"[TIME] 작업 시간: {message.duration_ms}ms")
