@@ -1,5 +1,12 @@
 @import "root.css";
 
+.title-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
 .content-title-wrapper {
     padding: 2rem 1rem 1rem 1rem;
     background-color: var(--dark-600);

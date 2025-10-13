@@ -9,9 +9,10 @@ def text_chunk(text):
         "text": text
     }
 
-def text_end():
+def text_result(block):
     return {
-        "type": "text_end",
+        "type": "text_result",
+        "id": block.session_id,
     }
 
 def tool_use(block):

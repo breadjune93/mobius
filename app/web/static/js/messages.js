@@ -49,6 +49,13 @@ async function processStream(firstMessage, interval, response) {
                             textMessage.innerHTML = md.render(assistantResponse);
                         }
 
+                        if (data.type === "text_result") {
+                            if (toolMessage) {
+                                updateToolStatus(toolMessage, true);
+                                toolMessage = null;
+                            }
+                        }
+
                         if (data.type === "tool_use") {
                             if (!toolMessage) {
                                 toolMessage = createToolMessage();
@@ -62,13 +69,6 @@ async function processStream(firstMessage, interval, response) {
 
                         if (data.type === "tool_error") {
                             toolMessage && addErrorSteps(toolMessage, data.error);
-                        }
-
-                        if (data.type === "text_end") {
-                            if (toolMessage) {
-                                updateToolStatus(toolMessage, true);
-                                toolMessage = null;
-                            }
                         }
 
                         if (data.type === "result_error") {
@@ -104,18 +104,18 @@ function createLoadingInterval(firstMessage) {
 
 function createMessage(message,
                        isAgent = false,
-                       isTools = false,
                        steps = "Working",
                        profilePath = "/image/mobius-nox.gif") {
 
     const messageContainer = `
         <div class="message-wrapper">
-            <div class="message ${isAgent ? 'assistant' : 'user'} ${isTools && 'tool-use'}">
+            <div class="message ${isAgent ? 'assistant' : 'user'}">
                 <div class="message-icon">
                     <img src="${profilePath}" alt="agent-profile" class="assistant-icon" />
                 </div>
-                <div class="message-content ${isTools && 'tool-content'}">
-                    ${isTools ? createTools(steps) : createContents(message)}
+                <div class="message-content">
+                    <div class="markdown-content scroll">${message}</div>
+                    <div class="timestamp">${formatTime()}</div>
                 </div>
             </div>
         </div>
@@ -155,13 +155,6 @@ function createToolMessage(profilePath = "/image/mobius-nox.gif") {
     chatContainer.insertAdjacentHTML("beforeend", messageContainer)
     chatContainer.scrollTop = chatContainer.scrollHeight;
     return chatContainer.lastElementChild.querySelector(".message-content")
-}
-
-function createContents(message) {
-    return `
-        <div class="markdown-content scroll">${message}</div>
-        <div class="timestamp">${formatTime()}</div>
-    `
 }
 
 function addUseSteps(element, name, value) {

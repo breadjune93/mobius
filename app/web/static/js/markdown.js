@@ -10,7 +10,7 @@ const md = window.markdownit({
 for (let i = 1; i <= 6; i++) {
     md.renderer.rules.heading_open = function (tokens, idx, options, env, renderer) {
         const level = tokens[idx].markup.length;
-        if (level === 1) return `<h${level} class="response-header-1"><br>`;
+        if (level === 1) return `<h${level} class="response-header-1">`;
         return `<h${level} class="response-header-2">`;
     };
 }

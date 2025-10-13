@@ -59,7 +59,7 @@ async function getPylons() {
                 pylonEmpty.style.display = 'none';
 
                 // 파일런 개수 업데이트
-                totalPylon.textContent = `total - ${pylons.length} Pylon`;
+                totalPylon.textContent = `TOTAL - ${pylons.length} Pylon`;
 
                 // 파일런 카드 생성
                 pylons.forEach(pylon => {
@@ -69,7 +69,7 @@ async function getPylons() {
             } else {
                 // 파일런이 없으면 빈 상태 표시
                 pylonEmpty.style.display = 'block';
-                totalPylon.textContent = 'total - 0 Pylon';
+                totalPylon.textContent = 'TOTAL - 0 Pylon';
             }
         } else {
             alert(body.detail || '파일런 조회에 실패했습니다.');

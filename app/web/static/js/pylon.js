@@ -79,7 +79,7 @@ async function getPylon() {
     }
 }
 
-// load agents
+// 에이전트 리스트 조회
 async function loadAgents() {
     try {
         const response = await window.api.get('/api/v1/pylon/agents');
@@ -245,16 +245,6 @@ async function sendStreamMessage() {
         createMessage("죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.", true);
     }
 }
-
-// 로딩 점 애니메이션을 위한 함수
-function messageLoading(contentBox) {
-    let dotCount = 0;
-    return setInterval(() => {
-        dotCount = (dotCount % 3) + 1;
-        contentBox.textContent = '.'.repeat(dotCount);
-    }, 500);
-}
-
 
 // 알림 모달 표시 함수
 function showAlertModal(message, title = '알림') {

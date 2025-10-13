@@ -50,7 +50,7 @@ async def stream_claude(
                                 await asyncio.sleep(0.05)  # 단어별 지연
 
                             # 메시지 block 종료
-                            yield blocks.text_end()
+                            yield blocks.text_result(block)
 
                     if message_type == "UserMessage":
                         if isinstance(block, ToolResultBlock):
