@@ -1,41 +1,24 @@
 from sqlalchemy.orm import Session
 from app.db.models.pylon_agents import PylonAgents
-from typing import Optional
 
 class PylonAgentsRepository:
-    def get_pylon_agent(self, db: Session, id: int) -> PylonAgents | None:
+    def get_agent_by_pylon(self, db: Session, pylon_id: int) -> list[type[PylonAgents]]:
         """ID로 pylon_agent 조회"""
-        return db.query(PylonAgents).filter(PylonAgents.id == id).first()
+        return (
+            db.query(PylonAgents)
+            .filter(PylonAgents.pylon_id == pylon_id)
+            .all()
+        )
 
-    def get_pylon_agents_by_pylon(self, db: Session, pylon_id: int) -> list[PylonAgents]:
-        """특정 pylon의 모든 에이전트 조회"""
-        return db.query(PylonAgents).filter(PylonAgents.pylon_id == pylon_id).all()
-
-    def get_pylon_agents_by_agent(self, db: Session, agent_id: str) -> list[PylonAgents]:
-        """특정 에이전트가 속한 모든 pylon 조회"""
-        return db.query(PylonAgents).filter(PylonAgents.agent_id == agent_id).all()
-
-    def get_pylon_agent_by_pylon_and_agent(self, db: Session, pylon_id: int, agent_id: str) -> PylonAgents | None:
+    def get_agent_by_id(self, db: Session, pylon_agent_id: int) -> PylonAgents | None:
         """특정 pylon과 agent의 관계 조회"""
         return (
             db.query(PylonAgents)
-            .filter(PylonAgents.pylon_id == pylon_id, PylonAgents.agent_id == agent_id)
+            .filter(PylonAgents.id == pylon_agent_id)
             .first()
         )
 
-    def get_active_pylon_agent(self, db: Session, pylon_id: int, agent_id: str) -> PylonAgents | None:
-        """특정 pylon과 agent의 활성 세션이 있는 관계 조회"""
-        return (
-            db.query(PylonAgents)
-            .filter(
-                PylonAgents.pylon_id == pylon_id,
-                PylonAgents.agent_id == agent_id,
-                PylonAgents.session_state == "active"
-            )
-            .first()
-        )
-
-    def create(self,
+    def create_agent(self,
                db: Session,
                pylon_id: int,
                agent_id: str,
@@ -73,9 +56,9 @@ class PylonAgentsRepository:
         db.refresh(pylon_agent)
         return pylon_agent
 
-    def update(self,
+    def update_agent(self,
                db: Session,
-               id: int,
+               pylon_agent_id: int,
                agent_image_url: str | None = None,
                session_id: str | None = None,
                session_state: str | None = None,
@@ -93,7 +76,7 @@ class PylonAgentsRepository:
                total_turns_completed: int | None = None,
                average_response_time: int | None = None) -> PylonAgents | None:
         """pylon_agent 업데이트"""
-        pylon_agent = self.get_pylon_agent(db, id)
+        pylon_agent = self.get_agent_by_id(db, pylon_agent_id)
         if not pylon_agent:
             return None
 
@@ -134,67 +117,12 @@ class PylonAgentsRepository:
         db.refresh(pylon_agent)
         return pylon_agent
 
-    def delete(self, db: Session, id: int) -> bool:
+    def delete_agent(self, db: Session, pylon_agent_id: int) -> bool:
         """pylon_agent 삭제"""
-        pylon_agent = self.get_pylon_agent(db, id)
+        pylon_agent = self.get_agent_by_id(db, pylon_agent_id)
         if not pylon_agent:
             return False
 
         db.delete(pylon_agent)
         db.commit()
         return True
-
-    def delete_by_pylon_and_agent(self, db: Session, pylon_id: int, agent_id: str) -> bool:
-        """특정 pylon에서 에이전트 제거"""
-        pylon_agent = self.get_pylon_agent_by_pylon_and_agent(db, pylon_id, agent_id)
-        if not pylon_agent:
-            return False
-
-        db.delete(pylon_agent)
-        db.commit()
-        return True
-
-    def update_session_state(self, db: Session, id: int, session_state: str, session_id: str | None = None) -> PylonAgents | None:
-        """세션 상태 업데이트"""
-        return self.update(db, id, session_state=session_state, session_id=session_id)
-
-    def update_stats(self,
-                     db: Session,
-                     id: int,
-                     tokens_used: int = 0,
-                     tool_calls: int = 0,
-                     turns_completed: int = 0,
-                     response_time: int | None = None) -> PylonAgents | None:
-        """통계 업데이트"""
-        pylon_agent = self.get_pylon_agent(db, id)
-        if not pylon_agent:
-            return None
-
-        pylon_agent.total_tokens_used = (pylon_agent.total_tokens_used or 0) + tokens_used
-        pylon_agent.total_tool_calls = (pylon_agent.total_tool_calls or 0) + tool_calls
-        pylon_agent.total_turns_completed = (pylon_agent.total_turns_completed or 0) + turns_completed
-
-        if response_time is not None:
-            # 평균 응답 시간 계산
-            current_avg = pylon_agent.average_response_time or 0
-            total_turns = pylon_agent.total_turns_completed or 1
-            new_avg = ((current_avg * (total_turns - 1)) + response_time) // total_turns
-            pylon_agent.average_response_time = new_avg
-
-        db.commit()
-        db.refresh(pylon_agent)
-        return pylon_agent
-
-    def create_checkpoint(self, db: Session, id: int) -> PylonAgents | None:
-        """체크포인트 생성"""
-        from datetime import datetime
-        pylon_agent = self.get_pylon_agent(db, id)
-        if not pylon_agent:
-            return None
-
-        pylon_agent.last_checkpoint_at = datetime.now()
-        pylon_agent.checkpoint_count = (pylon_agent.checkpoint_count or 0) + 1
-
-        db.commit()
-        db.refresh(pylon_agent)
-        return pylon_agent

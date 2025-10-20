@@ -2,27 +2,23 @@ from sqlalchemy.orm import Session
 from app.db.models.pylon_users import PylonUsers
 
 class PylonUsersRepository:
-    def get_pylon_user(self, db: Session, id: int) -> PylonUsers | None:
-        """ID로 pylon_user 조회"""
-        return db.query(PylonUsers).filter(PylonUsers.id == id).first()
-
-    def get_pylon_users_by_pylon(self, db: Session, pylon_id: int) -> list[PylonUsers]:
+    def get_user_by_pylon(self, db: Session, pylon_id: int) -> list[type[PylonUsers]]:
         """특정 pylon의 모든 사용자 조회"""
-        return db.query(PylonUsers).filter(PylonUsers.pylon_id == pylon_id).all()
+        return (
+            db.query(PylonUsers)
+            .filter(PylonUsers.pylon_id == pylon_id)
+            .all()
+        )
 
-    def get_pylon_users_by_user(self, db: Session, user_id: str) -> list[PylonUsers]:
-        """특정 사용자가 속한 모든 pylon 조회"""
-        return db.query(PylonUsers).filter(PylonUsers.user_id == user_id).all()
-
-    def get_pylon_user_by_pylon_and_user(self, db: Session, pylon_id: int, user_id: str) -> PylonUsers | None:
+    def get_user_by_id(self, db: Session, pylon_user_id: int) -> PylonUsers | None:
         """특정 pylon과 user의 관계 조회"""
         return (
             db.query(PylonUsers)
-            .filter(PylonUsers.pylon_id == pylon_id, PylonUsers.user_id == user_id)
+            .filter(PylonUsers.id == pylon_user_id)
             .first()
         )
 
-    def create(self,
+    def create_user(self,
                db: Session,
                pylon_id: int,
                user_id: str,
@@ -42,14 +38,14 @@ class PylonUsersRepository:
         db.refresh(pylon_user)
         return pylon_user
 
-    def update(self,
+    def update_user(self,
                db: Session,
-               id: int,
+               pylon_user_id: int,
                user_role: str | None = None,
                pylon_role: str | None = None,
                user_image_url: str | None = None) -> PylonUsers | None:
         """pylon_user 업데이트"""
-        pylon_user = self.get_pylon_user(db, id)
+        pylon_user = self.update_user(db, pylon_user_id)
         if not pylon_user:
             return None
 
@@ -64,19 +60,9 @@ class PylonUsersRepository:
         db.refresh(pylon_user)
         return pylon_user
 
-    def delete(self, db: Session, id: int) -> bool:
+    def delete_user(self, db: Session, pylon_user_id: int) -> bool:
         """pylon_user 삭제"""
-        pylon_user = self.get_pylon_user(db, id)
-        if not pylon_user:
-            return False
-
-        db.delete(pylon_user)
-        db.commit()
-        return True
-
-    def delete_by_pylon_and_user(self, db: Session, pylon_id: int, user_id: str) -> bool:
-        """특정 pylon에서 사용자 제거"""
-        pylon_user = self.get_pylon_user_by_pylon_and_user(db, pylon_id, user_id)
+        pylon_user = self.delete_user(db, pylon_user_id)
         if not pylon_user:
             return False
 

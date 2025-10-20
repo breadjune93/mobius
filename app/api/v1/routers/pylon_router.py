@@ -30,7 +30,7 @@ router = APIRouter(prefix="/api/v1/pylon", tags=["pylon"])
 # Service 초기화
 pylon_service = PylonService(AgentRepository(),ChatRepository())
 user_service = PylonUsersService(PylonUsersRepository())
-agent_service = PylonUsersService(PylonUsersRepository())
+agent_service = PylonAgentsService(PylonAgentsRepository())
 
 # ============================================
 # Agent Endpoints
@@ -62,17 +62,17 @@ def get_agent(
 # pylon user Endpoints
 # ============================================
 @router.get("/{pylon_id}/users", response_model=GetPylonUsersResponse)
-def get_pylon_user(pylon_id: int, db: Session = Depends(get_db)):
+def get_pylon_users(pylon_id: int, db: Session = Depends(get_db)):
     """pylon_user 조회"""
-    pylon_user = user_service.(db, id)
-    if not pylon_user:
+    pylon_users = user_service.get_users(db, pylon_id)
+    if not pylon_users:
         raise HTTPException(status_code=404, detail="PylonUser not found")
-    return {"pylon_user": pylon_user}
+    return {"pylon_users": pylon_users}
 
-@router.get("/{pylon_id}/user/{user_id}", response_model=GetPylonUserResponse)
-def get_pylon_user(pylon_id: int, db: Session = Depends(get_db)):
+@router.get("/{pylon_id}/user/{pylon_user_id}", response_model=GetPylonUserResponse)
+def get_pylon_user(pylon_user_id: int, db: Session = Depends(get_db)):
     """pylon_user 조회"""
-    pylon_user = service.get_pylon_user(db, id)
+    pylon_user = user_service.get_user(db, pylon_user_id)
     if not pylon_user:
         raise HTTPException(status_code=404, detail="PylonUser not found")
     return {"pylon_user": pylon_user}
@@ -84,18 +84,18 @@ def get_pylon_user(pylon_id: int, db: Session = Depends(get_db)):
 @router.get("/{pylon_id}/agents", response_model=GetPylonUserResponse)
 def get_pylon_user(pylon_id: int, db: Session = Depends(get_db)):
     """pylon_user 조회"""
-    pylon_user = service.get_pylon_user(db, id)
-    if not pylon_user:
+    pylon_agents = agent_service.get_agents(db, pylon_id)
+    if not pylon_agents:
         raise HTTPException(status_code=404, detail="PylonUser not found")
-    return {"pylon_user": pylon_user}
+    return {"pylon_agents": pylon_agents}
 
 @router.get("/{pylon_id}/agent/{agent_id}", response_model=GetPylonUserResponse)
-def get_pylon_user(pylon_id: int, db: Session = Depends(get_db)):
+def get_pylon_user(pylon_agent_id: int, db: Session = Depends(get_db)):
     """pylon_user 조회"""
-    pylon_user = service.get_pylon_user(db, id)
-    if not pylon_user:
+    pylon_agent = agent_service.get_agent(db, pylon_agent_id)
+    if not pylon_agent:
         raise HTTPException(status_code=404, detail="PylonUser not found")
-    return {"pylon_user": pylon_user}
+    return {"pylon_agent": pylon_agent}
 
 # ============================================
 # Chat Endpoints
@@ -110,7 +110,7 @@ def get_chats(
     """pylon_agent의 채팅 내역 조회"""
     # Note: 이제 session_id 대신 pylon_agent_id 사용
     # chats 테이블 구조가 변경되면 여기도 수정 필요
-    chats = service.get_chats(db, pylon_id, limit)
+    chats = pylon_service.get_chats(db, pylon_id, limit)
     return {"chats": chats}
 
 

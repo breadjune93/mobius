@@ -1,33 +1,20 @@
 from sqlalchemy.orm import Session
 from app.db.repositories.pylon_agents_repository import PylonAgentsRepository
 from app.db.models.pylon_agents import PylonAgents
-from typing import List, Optional
 
 class PylonAgentsService:
     def __init__(self, pylon_agents_repository: PylonAgentsRepository):
         self.pylon_agents_repository = pylon_agents_repository
 
-    def get_pylon_agent(self, db: Session, id: int) -> PylonAgents | None:
+    def get_agents(self, db: Session, pylon_id: int) -> list[type[PylonAgents]]:
+        """pylon_agents 조회"""
+        return self.pylon_agents_repository.get_agent_by_pylon(db, pylon_id)
+
+    def get_agent(self, db: Session, pylon_agent_id: int) -> PylonAgents | None:
         """pylon_agent 조회"""
-        return self.pylon_agents_repository.get_pylon_agent(db, id)
+        return self.pylon_agents_repository.get_agent_by_id(db, pylon_agent_id)
 
-    def get_pylon_agents_by_pylon(self, db: Session, pylon_id: int) -> List[PylonAgents]:
-        """특정 pylon의 모든 에이전트 조회"""
-        return self.pylon_agents_repository.get_pylon_agents_by_pylon(db, pylon_id)
-
-    def get_pylon_agents_by_agent(self, db: Session, agent_id: str) -> List[PylonAgents]:
-        """특정 에이전트가 속한 모든 pylon 조회"""
-        return self.pylon_agents_repository.get_pylon_agents_by_agent(db, agent_id)
-
-    def get_pylon_agent_by_pylon_and_agent(self, db: Session, pylon_id: int, agent_id: str) -> PylonAgents | None:
-        """특정 pylon과 agent의 관계 조회"""
-        return self.pylon_agents_repository.get_pylon_agent_by_pylon_and_agent(db, pylon_id, agent_id)
-
-    def get_active_pylon_agent(self, db: Session, pylon_id: int, agent_id: str) -> PylonAgents | None:
-        """특정 pylon과 agent의 활성 세션이 있는 관계 조회"""
-        return self.pylon_agents_repository.get_active_pylon_agent(db, pylon_id, agent_id)
-
-    def create_pylon_agent(self,
+    def create_agent(self,
                            db: Session,
                            pylon_id: int,
                            agent_id: str,
@@ -44,7 +31,7 @@ class PylonAgentsService:
                            allowed_tools: dict | None = None,
                            disallowed_tools: dict | None = None) -> PylonAgents:
         """새 pylon_agent 생성"""
-        return self.pylon_agents_repository.create(
+        return self.pylon_agents_repository.create_agent(
             db=db,
             pylon_id=pylon_id,
             agent_id=agent_id,
@@ -62,37 +49,13 @@ class PylonAgentsService:
             disallowed_tools=disallowed_tools
         )
 
-    def update_pylon_agent(self,
+    def update_agent(self,
                            db: Session,
-                           id: int,
+                           pylon_agent_id: int,
                            **kwargs) -> PylonAgents | None:
         """pylon_agent 업데이트"""
-        return self.pylon_agents_repository.update(db, id, **kwargs)
+        return self.pylon_agents_repository.update_agent(db, pylon_agent_id, **kwargs)
 
-    def delete_pylon_agent(self, db: Session, id: int) -> bool:
+    def delete_agent(self, db: Session, pylon_agent_id: int) -> bool:
         """pylon_agent 삭제"""
-        return self.pylon_agents_repository.delete(db, id)
-
-    def delete_pylon_agent_by_pylon_and_agent(self, db: Session, pylon_id: int, agent_id: str) -> bool:
-        """특정 pylon에서 에이전트 제거"""
-        return self.pylon_agents_repository.delete_by_pylon_and_agent(db, pylon_id, agent_id)
-
-    def update_session_state(self, db: Session, id: int, session_state: str, session_id: str | None = None) -> PylonAgents | None:
-        """세션 상태 업데이트"""
-        return self.pylon_agents_repository.update_session_state(db, id, session_state, session_id)
-
-    def update_pylon_agent_stats(self,
-                                  db: Session,
-                                  id: int,
-                                  tokens_used: int = 0,
-                                  tool_calls: int = 0,
-                                  turns_completed: int = 0,
-                                  response_time: int | None = None) -> PylonAgents | None:
-        """통계 업데이트"""
-        return self.pylon_agents_repository.update_stats(
-            db, id, tokens_used, tool_calls, turns_completed, response_time
-        )
-
-    def create_checkpoint(self, db: Session, id: int) -> PylonAgents | None:
-        """체크포인트 생성"""
-        return self.pylon_agents_repository.create_checkpoint(db, id)
+        return self.pylon_agents_repository.delete_agent(db, pylon_agent_id)
