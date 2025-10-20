@@ -66,6 +66,7 @@ class PylonService:
     # Chat Methods
     # ============================================
     def get_chats(self, db: Session, session_id: str, limit: int = None) -> List[Chats]:
+        # TODO: session_id가 아닌 pylon_id로 채팅 대화 구분할 수 있게 수정 필요
         """채팅 내역 조회"""
         return self.chat_repository.get_session_chats(db, session_id, limit)
 
