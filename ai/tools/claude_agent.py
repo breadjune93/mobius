@@ -10,18 +10,26 @@ DEFAULT_TURNS = 5
 
 
 async def stream_claude(
-    system_prompt: str,
     prompt: str,
-    model: str = DEFAULT_MODEL,
-    max_turns: int = DEFAULT_TURNS,
+    model: str,
+    instructions: str,
+    max_turns: int,
+    temperature: float,
+    allow_tools: list[str],
+    disallowed_tools: list[str],
+    mcp_servers: dict,
+    sub_agents: object,
+    session_id: str
 ) -> AsyncGenerator[Dict, None]:
     print("stream_claude 호출")
 
     async with ClaudeSDKClient(
         ClaudeAgentOptions(
             model=model,
-            system_prompt=system_prompt,
+            system_prompt=instructions,
             max_turns=max_turns,
+            permission_mode=,
+            resume=session_id,
         )
     ) as client:
         await client.query(prompt)
